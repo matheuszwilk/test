@@ -1,12 +1,6 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client-js"
-  binaryTargets = ["native", "debian-openssl-1.1.x"] // Adicione esta linha
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-1.1.x"]
 }
 
 datasource db {
@@ -35,11 +29,57 @@ model Sale {
 model SaleProduct {
   id        String   @id @default(uuid())
   saleId    String
-  sale      Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
   productId String
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   unitPrice Decimal  @db.Decimal(10, 2)
   quantity  Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sale      Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
+}
+
+model manhour {
+  id                           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organization                 String?
+  line                         String?
+  shift                        String?
+  work_part                    String?
+  work_date                    DateTime? @db.Date
+  model_or_model_suffix        String?
+  total_working_time           Float?
+  net_working_time             Float?
+  production_quantity          Int?
+  uph                          Float?
+  yield_man_hour               Float?
+  total_attendance_man_hour    Float?
+  direct_man_hour              Float?
+  indirect_man_hour            Float?
+  idle_man_hour                Float?
+  controllable_idle_man_hour   Float?
+  uncontrollable_idle_man_hour Float?
+  rework_man_hour              Float?
+  net_working_man_hour         Float?
+  direct_on_operation          Int?
+  indirect_on_operation        Int?
+  total_on_operation           Int?
+}
+
+model andon {
+  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  no                 Int
+  chk                String
+  status             String
+  equipment_line     String
+  andon_process      String
+  andon_no           Int
+  main_sub           String
+  start              DateTime @db.Timestamp(6)
+  end                DateTime @db.Timestamp(6)
+  run_time_hms       String
+  run_time_sec       Int
+  warning_stop       String
+  andon_type         String
+  cause_department   String
+  cause_department_1 String
+  reason             String
 }
