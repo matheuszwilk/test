@@ -1,6 +1,5 @@
 generator client {
   provider      = "prisma-client-js"
-  binaryTargets = ["native", "debian-openssl-1.1.x"]
 }
 
 datasource db {
@@ -30,12 +29,15 @@ model SaleProduct {
   id        String   @id @default(uuid())
   saleId    String
   productId String
-  unitPrice Decimal  @db.Decimal(10, 2)
   quantity  Int
+  unitPrice Decimal  @db.Decimal(10, 2)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   sale      Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([saleId])
 }
 
 model manhour {
@@ -65,21 +67,32 @@ model manhour {
 }
 
 model andon {
-  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  no                 Int
-  chk                String
-  status             String
-  equipment_line     String
-  andon_process      String
-  andon_no           Int
-  main_sub           String
-  start              DateTime @db.Timestamp(6)
-  end                DateTime @db.Timestamp(6)
-  run_time_hms       String
-  run_time_sec       Int
-  warning_stop       String
-  andon_type         String
-  cause_department   String
-  cause_department_1 String
-  reason             String
+  id                 String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  no                 Int?
+  chk                String?
+  status             String?
+  equipment_line     String?
+  andon_process      String?
+  andon_no           Int?
+  main_sub           String?
+  start              DateTime? @db.Timestamp(6)
+  end                DateTime? @db.Timestamp(6)
+  run_time_hms       String?
+  run_time_sec       Int?
+  warning_stop       String?
+  andon_type         String?
+  cause_department   String?
+  cause_department_1 String?
+  reason             String?
+  andon_time         Int?
+}
+
+model novatabela {
+  id         Int       @id(map: "nova_tabela_pkey") @default(autoincrement())
+  Date       DateTime? @db.Date
+  Product    String?
+  Batch      Int?
+  Operator   String?
+  Start_Time DateTime? @map("Start Time") @db.Time(6)
+  End_Time   DateTime? @map("End Time") @db.Time(6)
 }
