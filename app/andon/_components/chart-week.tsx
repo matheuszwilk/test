@@ -63,7 +63,6 @@ const ChartWeek = ({ data }: ChartWeekProps) => {
             tickMargin={8}
             tick={{ fill: textColor, fontSize: 12 }}
           >
-            <Label value="Week" position="bottom" style={{ fill: textColor, paddingTop: 20 }} />
           </XAxis>
           <YAxis 
             yAxisId="left" 
@@ -72,7 +71,6 @@ const ChartWeek = ({ data }: ChartWeekProps) => {
             tickLine={false}
             axisLine={false}
           >
-            <Label value="Quantidade de Paradas" angle={-90} position="insideLeft" style={{ fill: textColor }} />
           </YAxis>
           <YAxis 
             yAxisId="right" 
@@ -82,15 +80,50 @@ const ChartWeek = ({ data }: ChartWeekProps) => {
             tickLine={false}
             axisLine={false}
           >
-            <Label value="Taxa (%)" angle={90} position="insideRight" style={{ fill: textColor }} />
           </YAxis>
           <Tooltip
             contentStyle={{
               backgroundColor: isDark ? 'hsl(var(--background))' : 'white',
               border: '1px solid hsl(var(--border))',
-              borderRadius: '8px'
+              borderRadius: '8px',
+              padding: '8px 12px',
+              boxShadow: '0 4px 12px rgba(255, 0, 81, 0.15)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              transition: 'all 0.2s ease'
             }}
-            labelStyle={{ color: textColor }}
+            labelStyle={{ 
+              color: isDark ? 'rgb(255, 255, 255)' : 'rgb(0, 0, 0)',
+              fontWeight: 300,
+              fontSize: '12px',
+              marginBottom: '4px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}
+            formatter={(value: number, name: string) => {
+              const formattedValue = name.includes('Rate') || name === 'Target' 
+                ? `${(value * 100).toFixed(2)}%`
+                : value.toLocaleString();
+              
+              return [
+                <span style={{ 
+                  color: isDark ? 'rgb(255, 255, 255)' : 'rgb(0, 0, 0)',
+                  fontWeight: 300,
+                  fontSize: '12px'
+                }}>
+                  {formattedValue}
+                </span>, 
+                name
+              ];
+            }}
+            separator=": "
+            wrapperStyle={{
+              outline: 'none',
+              opacity: 0.95,
+              fontSize: '12px',
+              color: isDark ? 'rgb(255, 255, 255)' : 'rgb(0, 0, 0)'
+            }}
+            cursor={{ strokeWidth: 1 }}
           />
           <Bar
             yAxisId="left"
@@ -98,7 +131,7 @@ const ChartWeek = ({ data }: ChartWeekProps) => {
             fill="rgb(165, 0, 52)"
             radius={[4, 4, 0, 0]}
             barSize={40}
-            name="Quantidade de Paradas"
+            name="Andon Stop Qty"
           />
           <Line
             yAxisId="right"
@@ -112,7 +145,7 @@ const ChartWeek = ({ data }: ChartWeekProps) => {
             activeDot={{
               r: 6,
             }}
-            name="Meta"
+            name="Target"
           />
           <Line
             yAxisId="right"
@@ -126,7 +159,7 @@ const ChartWeek = ({ data }: ChartWeekProps) => {
             activeDot={{
               r: 6,
             }}
-            name="Taxa de Parada Instantânea"
+            name="Instant Stop Rate"
           />
         </ComposedChart>
       </ResponsiveContainer>
