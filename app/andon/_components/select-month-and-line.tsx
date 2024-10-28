@@ -1,21 +1,24 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../../_components/ui/select"
+} from "../../_components/ui/select";
 
 interface SelectMonthProps {
   initialMonth: string;
   initialLine: string;
 }
 
-const SelectMonthAndLine: React.FC<SelectMonthProps> = ({ initialMonth, initialLine }) => {
+const SelectMonthAndLine: React.FC<SelectMonthProps> = ({
+  initialMonth,
+  initialLine,
+}) => {
   const [selectedMonth, setSelectedMonth] = useState(initialMonth);
   const [selectedLine, setSelectedLine] = useState(initialLine);
   const router = useRouter();
@@ -29,16 +32,16 @@ const SelectMonthAndLine: React.FC<SelectMonthProps> = ({ initialMonth, initialL
   const handleMonthChange = (newMonth: string) => {
     setSelectedMonth(newMonth);
     const params = new URLSearchParams(searchParams);
-    params.set('month', newMonth);
-    params.set('line', selectedLine);
+    params.set("month", newMonth);
+    params.set("line", selectedLine);
     router.push(`/andon?${params.toString()}`);
   };
 
   const handleLineChange = (newLine: string) => {
     setSelectedLine(newLine);
     const params = new URLSearchParams(searchParams);
-    params.set('month', selectedMonth);
-    params.set('line', newLine);
+    params.set("month", selectedMonth);
+    params.set("line", newLine);
     router.push(`/andon?${params.toString()}`);
   };
 
@@ -46,11 +49,14 @@ const SelectMonthAndLine: React.FC<SelectMonthProps> = ({ initialMonth, initialL
     const options = [];
     const currentYear = new Date().getFullYear();
     const currentMonth = new Date().getMonth() + 1; // JavaScript months are 0-indexed, add 1 to get the correct month number
-    const months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
 
     for (let year = 2023; year <= currentYear; year++) {
-      for (let month = 1; month <= (year === currentYear ? currentMonth : 12); month++) {
-        const monthString = month.toString().padStart(2, '0');
+      for (
+        let month = 1;
+        month <= (year === currentYear ? currentMonth : 12);
+        month++
+      ) {
+        const monthString = month.toString().padStart(2, "0");
         const value = `${year}-${monthString}`;
         const label = value;
         options.push({ value, label });

@@ -1,4 +1,4 @@
-'use server';
+"use server";
 
 import { db } from "@/app/_lib/prisma";
 import { revalidatePath } from "next/cache";
@@ -14,9 +14,12 @@ export interface AndonDataDto {
   week_numbers: string[];
 }
 
-export const getAndonData = async (targetMonth: string, line?: string): Promise<AndonDataDto[]> => {
-  const [year, month] = targetMonth.split('-');
-  const formattedDate = `${year}-${month.padStart(2, '0')}-2`;
+export const getAndonData = async (
+  targetMonth: string,
+  line?: string,
+): Promise<AndonDataDto[]> => {
+  const [year, month] = targetMonth.split("-");
+  const formattedDate = `${year}-${month.padStart(2, "0")}-2`;
 
   // Este código SQL gera os números das semanas para o mês especificado
   const weekNumbers = await db.$queryRaw<{ week_number: string }[]>`
@@ -29,7 +32,7 @@ export const getAndonData = async (targetMonth: string, line?: string): Promise<
           -- Gera uma série de datas para o mês inteiro
           generate_series(
             ${formattedDate}::date, -- Data inicial (primeiro dia do mês)
-            (${formattedDate}::date + interval '1 month - 1 day')::date, -- Data final (último dia do mês)
+            (${formattedDate}::date + interval '1 month - 2 day')::date, -- Data final (último dia do mês)
             '1 day' -- Intervalo de 1 dia
           )
         ), 
@@ -41,14 +44,16 @@ export const getAndonData = async (targetMonth: string, line?: string): Promise<
     LIMIT 5
   `;
 
-  if (weekNumbers.length < 4 || weekNumbers.length > 5) {
-    throw new Error('Unable to determine 4 or 5 week numbers for the given month');
-  }
+  const [week1, week2, week3, week4, week5] = weekNumbers.map(
+    (w) => w.week_number,
+  );
 
-  const [week1, week2, week3, week4, week5] = weekNumbers.map(w => w.week_number);
-
-  const lineFilter = line && line !== 'All' ? Prisma.sql`AND line = ${line}` : Prisma.empty;
-  const equipmentLineFilter = line && line !== 'All' ? Prisma.sql`AND equipment_line = ${line}` : Prisma.empty;
+  const lineFilter =
+    line && line !== "All" ? Prisma.sql`AND line = ${line}` : Prisma.empty;
+  const equipmentLineFilter =
+    line && line !== "All"
+      ? Prisma.sql`AND equipment_line = ${line}`
+      : Prisma.empty;
 
   const result = await db.$queryRaw<AndonDataDto[]>`
     WITH common_filter AS (
@@ -152,11 +157,11 @@ export const getAndonData = async (targetMonth: string, line?: string): Promise<
     ORDER BY sort_order, title
   `;
 
-  const resultWithWeekNumbers = result.map(item => ({
+  const resultWithWeekNumbers = result.map((item) => ({
     ...item,
-    week_numbers: [week1, week2, week3, week4, week5].filter(Boolean)
+    week_numbers: [week1, week2, week3, week4, week5].filter(Boolean),
   }));
 
-  revalidatePath('/andon');
+  revalidatePath("/andon");
   return resultWithWeekNumbers;
 };
