@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 import {
   Bar,
   Line,
@@ -9,10 +9,9 @@ import {
   CartesianGrid,
   ComposedChart,
   ResponsiveContainer,
-  Label,
-  Tooltip
-} from 'recharts';
-import { useTheme } from 'next-themes';
+  Tooltip,
+} from "recharts";
+import { useTheme } from "next-themes";
 
 interface ChartYearProps {
   data: {
@@ -25,100 +24,103 @@ interface ChartYearProps {
 
 const ChartYear = ({ data }: ChartYearProps) => {
   const { theme } = useTheme();
-  
+
   const chartData = data[0].year_numbers.map((year, index) => {
     const yearKey = `year_${index + 1}`;
     return {
       year,
-      'Andon Stop Qty': data[2][yearKey as keyof typeof data[2]],
-      'Target': data[3][yearKey as keyof typeof data[3]],
-      'Instant Stop Rate': data[4][yearKey as keyof typeof data[4]]
+      "Andon Stop Qty": data[2][yearKey as keyof (typeof data)[2]],
+      Target: data[3][yearKey as keyof (typeof data)[3]],
+      "Instant Stop Rate": data[4][yearKey as keyof (typeof data)[4]],
     };
   });
 
-  const isDark = theme === 'dark';
-  
-  const textColor = isDark ? 'hsl(var(--muted-foreground))' : 'hsl(var(--foreground))';
-  const gridColor = isDark ? 'hsl(var(--border))' : 'hsl(var(--border))';
+  const isDark = theme === "dark";
+
+  const textColor = isDark
+    ? "hsl(var(--muted-foreground))"
+    : "hsl(var(--foreground))";
+  const gridColor = isDark ? "hsl(var(--border))" : "hsl(var(--border))";
 
   return (
-    <div className="w-full h-[250px]">
+    <div className="h-[250px] w-full">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart
           data={chartData}
           margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
         >
-          <CartesianGrid 
-            strokeDasharray="3 3" 
+          <CartesianGrid
+            strokeDasharray="3 3"
             stroke={gridColor}
             vertical={false}
           />
-          <XAxis 
-            dataKey="year" 
+          <XAxis
+            dataKey="year"
             tickLine={false}
             axisLine={false}
             tickMargin={8}
             tick={{ fill: textColor, fontSize: 12 }}
-          >
-          </XAxis>
-          <YAxis 
-            yAxisId="left" 
+          ></XAxis>
+          <YAxis
+            yAxisId="left"
             stroke={textColor}
             tick={{ fill: textColor, fontSize: 12 }}
             tickLine={false}
             axisLine={false}
-          >
-          </YAxis>
-          <YAxis 
-            yAxisId="right" 
-            orientation="right" 
+          ></YAxis>
+          <YAxis
+            yAxisId="right"
+            orientation="right"
             stroke={textColor}
             tick={{ fill: textColor, fontSize: 12 }}
             tickLine={false}
             axisLine={false}
-          >
-          </YAxis>
+          ></YAxis>
           <Tooltip
             contentStyle={{
-              backgroundColor: isDark ? 'hsl(var(--background))' : 'white',
-              border: '1px solid hsl(var(--border))',
-              borderRadius: '8px',
-              padding: '8px 12px',
-              boxShadow: '0 4px 12px rgba(255, 0, 81, 0.15)',
-              backdropFilter: 'blur(8px)',
-              WebkitBackdropFilter: 'blur(8px)',
-              transition: 'all 0.2s ease'
+              backgroundColor: isDark ? "hsl(var(--background))" : "white",
+              border: "1px solid hsl(var(--border))",
+              borderRadius: "8px",
+              padding: "8px 12px",
+              boxShadow: "0 4px 12px rgba(255, 0, 81, 0.15)",
+              backdropFilter: "blur(8px)",
+              WebkitBackdropFilter: "blur(8px)",
+              transition: "all 0.2s ease",
             }}
-            labelStyle={{ 
-              color: isDark ? 'rgb(255, 255, 255)' : 'rgb(0, 0, 0)',
+            labelStyle={{
+              color: isDark ? "rgb(255, 255, 255)" : "rgb(0, 0, 0)",
               fontWeight: 300,
-              fontSize: '12px',
-              marginBottom: '4px',
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px'
+              fontSize: "12px",
+              marginBottom: "4px",
+              textTransform: "uppercase",
+              letterSpacing: "0.5px",
             }}
             formatter={(value: number, name: string) => {
-              const formattedValue = name.includes('Rate') || name === 'Target' 
-                ? `${(value * 100).toFixed(2)}%`
-                : value.toLocaleString();
-              
+              const formattedValue =
+                name.includes("Rate") || name === "Target"
+                  ? `${(value * 100).toFixed(2)}%`
+                  : value.toLocaleString();
+
               return [
-                <span style={{ 
-                  color: isDark ? 'rgb(255, 255, 255)' : 'rgb(0, 0, 0)',
-                  fontWeight: 300,
-                  fontSize: '12px'
-                }}>
+                <span
+                  style={{
+                    color: isDark ? "rgb(255, 255, 255)" : "rgb(0, 0, 0)",
+                    fontWeight: 300,
+                    fontSize: "12px",
+                  }}
+                  key={name}
+                >
                   {formattedValue}
-                </span>, 
-                name
+                </span>,
+                name,
               ];
             }}
             separator=": "
             wrapperStyle={{
-              outline: 'none',
+              outline: "none",
               opacity: 0.95,
-              fontSize: '12px',
-              color: isDark ? 'rgb(255, 255, 255)' : 'rgb(0, 0, 0)'
+              fontSize: "12px",
+              color: isDark ? "rgb(255, 255, 255)" : "rgb(0, 0, 0)",
             }}
             cursor={{ strokeWidth: 1 }}
           />

@@ -12,33 +12,25 @@ import {
   Tooltip,
 } from "recharts";
 import { useTheme } from "next-themes";
+import { DefectQtyAccDataDto } from "../../_data-access/andon/get-defect-acc-by-qty";
 
-interface ChartWeekProps {
-  data: {
-    title: string;
-    week_1: number;
-    week_2: number;
-    week_3: number;
-    week_4: number;
-    week_5: number;
-    week_numbers: string[];
-  }[];
+interface ChartDefectProps {
+  data: DefectQtyAccDataDto[];
 }
 
-const ChartWeek = ({ data }: ChartWeekProps) => {
+const ChartDefectByQty = ({ data }: ChartDefectProps) => {
   const { theme } = useTheme();
-
-  const chartData = data[0].week_numbers.map((week, index) => {
-    const weekKey = `week_${index + 1}`;
-    return {
-      week,
-      "Andon Stop Qty": data[2][weekKey as keyof (typeof data)[2]],
-      Target: data[3][weekKey as keyof (typeof data)[3]],
-      "Instant Stop Rate": data[4][weekKey as keyof (typeof data)[4]],
-    };
-  });
-
   const isDark = theme === "dark";
+
+  // Convert BigInt and Decimal values to numbers before passing to chart
+  const formattedData = data.map((item) => ({
+    month: item.month,
+    equipment_line: item.equipment_line,
+    andon_process: item.andon_process,
+    total_andon_count: Number(item.total_andon_count), // Convert BigInt to number
+    andon_porcent: parseFloat(item.andon_porcent.toString()),
+    andon_procent_acc: parseFloat(item.andon_procent_acc.toString()),
+  }));
 
   const textColor = isDark
     ? "hsl(var(--muted-foreground))"
@@ -49,7 +41,7 @@ const ChartWeek = ({ data }: ChartWeekProps) => {
     <div className="h-[250px] w-full">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart
-          data={chartData}
+          data={formattedData}
           margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
         >
           <CartesianGrid
@@ -58,19 +50,19 @@ const ChartWeek = ({ data }: ChartWeekProps) => {
             vertical={false}
           />
           <XAxis
-            dataKey="week"
+            dataKey="andon_process"
             tickLine={false}
             axisLine={false}
             tickMargin={8}
             tick={{ fill: textColor, fontSize: 12 }}
-          ></XAxis>
+          />
           <YAxis
             yAxisId="left"
             stroke={textColor}
             tick={{ fill: textColor, fontSize: 12 }}
             tickLine={false}
             axisLine={false}
-          ></YAxis>
+          />
           <YAxis
             yAxisId="right"
             orientation="right"
@@ -78,7 +70,8 @@ const ChartWeek = ({ data }: ChartWeekProps) => {
             tick={{ fill: textColor, fontSize: 12 }}
             tickLine={false}
             axisLine={false}
-          ></YAxis>
+            domain={[0, 100]}
+          />
           <Tooltip
             contentStyle={{
               backgroundColor: isDark ? "hsl(var(--background))" : "white",
@@ -100,8 +93,8 @@ const ChartWeek = ({ data }: ChartWeekProps) => {
             }}
             formatter={(value: number, name: string) => {
               const formattedValue =
-                name.includes("Rate") || name === "Target"
-                  ? `${(value * 100).toFixed(2)}%`
+                name === "andon_procent_acc"
+                  ? `${value.toFixed(2)}%`
                   : value.toLocaleString();
 
               return [
@@ -115,7 +108,7 @@ const ChartWeek = ({ data }: ChartWeekProps) => {
                 >
                   {formattedValue}
                 </span>,
-                name,
+                name === "total_andon_count" ? "Total Qty" : "Defect Index %",
               ];
             }}
             separator=": "
@@ -129,30 +122,16 @@ const ChartWeek = ({ data }: ChartWeekProps) => {
           />
           <Bar
             yAxisId="left"
-            dataKey="Andon Stop Qty"
+            dataKey="total_andon_count"
             fill="rgb(165, 0, 52)"
             radius={[4, 4, 0, 0]}
             barSize={40}
-            name="Andon Stop Qty"
+            name="total_andon_count"
           />
           <Line
             yAxisId="right"
             type="natural"
-            dataKey="Target"
-            stroke="hsl(var(--chart-2))"
-            strokeWidth={2}
-            dot={{
-              fill: "rgb(255, 255, 255)",
-            }}
-            activeDot={{
-              r: 6,
-            }}
-            name="Target"
-          />
-          <Line
-            yAxisId="right"
-            type="natural"
-            dataKey="Instant Stop Rate"
+            dataKey="andon_procent_acc"
             stroke={isDark ? "rgb(255, 255, 255)" : "rgb(0, 0, 0)"}
             strokeWidth={2}
             dot={{
@@ -161,7 +140,13 @@ const ChartWeek = ({ data }: ChartWeekProps) => {
             activeDot={{
               r: 6,
             }}
-            name="Instant Stop Rate"
+            name="andon_procent_acc"
+            label={{
+              position: "top",
+              fill: isDark ? "rgb(255, 255, 255)" : "rgb(0, 0, 0)",
+              fontSize: 12,
+              formatter: (value: number) => `${value.toFixed(2)}%`,
+            }}
           />
         </ComposedChart>
       </ResponsiveContainer>
@@ -169,4 +154,4 @@ const ChartWeek = ({ data }: ChartWeekProps) => {
   );
 };
 
-export default ChartWeek;
+export default ChartDefectByQty;

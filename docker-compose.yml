@@ -2,12 +2,12 @@ version: "3.8"
 
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    build: .
     ports:
       - "3001:3000"
     environment:
       DATABASE_URL: postgres://postgres:bh2ksv5y@10.193.236.56:5432/serverdb
+      NODE_ENV: "production"
     volumes:
       - .:/app # Para desenvolvimento, opcionalmente
+    restart: unless-stopped

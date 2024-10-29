@@ -1,4 +1,4 @@
-'use server';
+"use server";
 
 import { db } from "@/app/_lib/prisma";
 import { Prisma } from "@prisma/client";
@@ -20,7 +20,10 @@ interface RawAndonData {
   months: { [key: string]: number };
 }
 
-export const getAndonByMonthData = async (targetMonth: string, line?: string): Promise<AndonByMonthDataDto[]> => {
+export const getAndonByMonthData = async (
+  targetMonth: string,
+  line?: string,
+): Promise<AndonByMonthDataDto[]> => {
   const formattedDate = `${targetMonth}-01`; // Use January of the target year
 
   // Generate the last 6 months of the year-month selected
@@ -33,10 +36,14 @@ export const getAndonByMonthData = async (targetMonth: string, line?: string): P
     ORDER BY month_number
   `;
 
-  const monthNumbersArray = monthNumbers.map(m => m.month_number);
+  const monthNumbersArray = monthNumbers.map((m) => m.month_number);
 
-  const lineFilter = line && line !== 'All' ? Prisma.sql`AND line = ${line}` : Prisma.empty;
-  const equipmentLineFilter = line && line !== 'All' ? Prisma.sql`AND equipment_line = ${line}` : Prisma.empty;
+  const lineFilter =
+    line && line !== "All" ? Prisma.sql`AND line = ${line}` : Prisma.empty;
+  const equipmentLineFilter =
+    line && line !== "All"
+      ? Prisma.sql`AND equipment_line = ${line}`
+      : Prisma.empty;
 
   const result = await db.$queryRaw<RawAndonData[]>`
     WITH common_filter AS (
@@ -169,7 +176,7 @@ export const getAndonByMonthData = async (targetMonth: string, line?: string): P
       sort_order
   `;
 
-  const formattedResult: AndonByMonthDataDto[] = result.map(item => ({
+  const formattedResult: AndonByMonthDataDto[] = result.map((item) => ({
     title: item.title,
     month_1: item.months[monthNumbersArray[0]] || 0,
     month_2: item.months[monthNumbersArray[1]] || 0,
@@ -177,10 +184,9 @@ export const getAndonByMonthData = async (targetMonth: string, line?: string): P
     month_4: item.months[monthNumbersArray[3]] || 0,
     month_5: item.months[monthNumbersArray[4]] || 0,
     month_6: item.months[monthNumbersArray[5]] || 0,
-    month_numbers: monthNumbersArray
+    month_numbers: monthNumbersArray,
   }));
 
-  revalidatePath('/andon');
-  console.log(formattedResult);
+  revalidatePath("/andon");
   return formattedResult;
 };

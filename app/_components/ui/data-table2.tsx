@@ -17,11 +17,6 @@ import {
   TableRow,
 } from "./table";
 
-interface AndonByMonthDataDto {
-  title: string;
-  months: { [key: string]: number };
-  month_numbers: string[];
-}
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];

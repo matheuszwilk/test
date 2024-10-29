@@ -27,6 +27,12 @@ import { andonTableColumnsByYear } from "./_components/table-andon-columns-by-ye
 import ChartMonth from "./_components/chart-month";
 import ChartWeek from "./_components/chart-week";
 import ChartYear from "./_components/chart-year";
+import { getDefectAccData } from "../_data-access/andon/get-defect-acc-by-time";
+import { DefectAccDataDto } from "../_data-access/andon/get-defect-acc-by-time";
+import ChartDefect from "./_components/chart-defect-time";
+import ChartDefectByQty from "./_components/chart-defect-qty";
+import { getDefectQtyAccData } from "../_data-access/andon/get-defect-acc-by-qty";
+import { DefectQtyAccDataDto } from "../_data-access/andon/get-defect-acc-by-qty";
 
 // Essa página será montada uma vez e reutilizada (SSG), podendo ser incrementada de forma regenerativa (ISR)
 export const dynamic = "force-dynamic";
@@ -51,7 +57,16 @@ const AndonPage = async ({
     targetLine,
   );
 
-  console.log(andonData);
+  const defectAccData: DefectAccDataDto[] = await getDefectAccData(
+    targetMonth,
+    targetLine,
+  );
+  const defectQtyAccData: DefectQtyAccDataDto[] = await getDefectQtyAccData(
+    targetMonth,
+    targetLine,
+  );
+
+  console.log(defectQtyAccData);
 
   return (
     <div className="w-full space-y-8 rounded-lg bg-background p-8">
@@ -71,6 +86,8 @@ const AndonPage = async ({
           </div>
         </HeaderRight>
       </Header>
+      <ChartDefect data={defectAccData} />
+      <ChartDefectByQty data={defectQtyAccData} />
       <div className="flex w-full flex-row gap-4 overflow-auto">
         <div className="flex w-full flex-col gap-2">
           <div>
