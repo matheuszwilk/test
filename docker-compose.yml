@@ -8,6 +8,13 @@ services:
     environment:
       DATABASE_URL: postgres://postgres:bh2ksv5y@10.193.236.56:5432/serverdb
       NODE_ENV: "production"
+      MINIO_ENDPOINT: 10.193.236.56
+      MINIO_PORT: 9000
+      MINIO_USE_SSL: "false"
+      MINIO_ACCESS_KEY: 1UrV1Q0Em7wB3rZubQOn
+      MINIO_SECRET_KEY: eEhrrylS9b7SYjxn5ndwakfQHB7DGne6OOajDELF
+      MINIO_BUCKET: aws-f6
+      MINIO_PUBLIC_URL: 10.193.236.56:9001
     volumes:
       - .:/app # Para desenvolvimento, opcionalmente
     restart: unless-stopped
