@@ -1,18 +1,22 @@
 "use client";
 
 import { useFormState } from "react-dom";
+import { useState } from "react";
 import { submitFormAction } from "@/app/aws/actions";
 import { Button } from "@/app/_components/ui/button";
 import { Input } from "@/app/_components/ui/input";
 import { Card, CardContent } from "@/app/_components/ui/card";
 import { Separator } from "@/app/_components/ui/separator";
+import { Alert, AlertDescription } from "@/app/_components/ui/alert";
 
 const initialState = {
   url: "",
+  errors: undefined,
 };
 
 export function UploadForm() {
   const [state, formAction] = useFormState(submitFormAction, initialState);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   return (
     <Card className="w-full max-w-md">
@@ -21,8 +25,21 @@ export function UploadForm() {
           action={formAction}
           className="flex flex-col items-center justify-center space-y-4 p-6"
         >
-          <Input type="file" name="file" id="file" className="cursor-pointer" />
-          <Button type="submit" className="w-full">
+          <Input
+            type="file"
+            name="file"
+            id="file"
+            className="cursor-pointer"
+            onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+          />
+
+          {state.errors?.file && (
+            <Alert variant="destructive" className="w-full">
+              <AlertDescription>{state.errors.file}</AlertDescription>
+            </Alert>
+          )}
+
+          <Button type="submit" className="w-full" disabled={!selectedFile}>
             Upload file
           </Button>
 
