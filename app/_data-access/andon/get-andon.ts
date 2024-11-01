@@ -97,6 +97,7 @@ export const getAndonData = async (
         andon, common_filter
       WHERE
         TO_CHAR("end"::date, 'YYYY-MM') = TO_CHAR(common_filter.target_month, 'YYYY-MM')
+        ${equipmentLineFilter}
     ),
     manhour_data AS (
       SELECT

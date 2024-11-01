@@ -11,8 +11,8 @@ services:
       MINIO_ENDPOINT: 10.193.236.56
       MINIO_PORT: 9000
       MINIO_USE_SSL: "false"
-      MINIO_ACCESS_KEY: 1UrV1Q0Em7wB3rZubQOn
-      MINIO_SECRET_KEY: eEhrrylS9b7SYjxn5ndwakfQHB7DGne6OOajDELF
+      MINIO_ACCESS_KEY: 8cE6emMmFITeEqRkAiO2
+      MINIO_SECRET_KEY: 8dB5QAQU1L3nrfsnncztltsZQvL8bOtmwyG3nwrT
       MINIO_BUCKET: aws-f6
       MINIO_PUBLIC_URL: 10.193.236.56:9001
     volumes:

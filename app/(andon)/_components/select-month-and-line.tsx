@@ -34,7 +34,7 @@ const SelectMonthAndLine: React.FC<SelectMonthProps> = ({
     const params = new URLSearchParams(searchParams);
     params.set("month", newMonth);
     params.set("line", selectedLine);
-    router.push(`/andon?${params.toString()}`);
+    router.push(`/?${params.toString()}`);
   };
 
   const handleLineChange = (newLine: string) => {
@@ -42,7 +42,7 @@ const SelectMonthAndLine: React.FC<SelectMonthProps> = ({
     const params = new URLSearchParams(searchParams);
     params.set("month", selectedMonth);
     params.set("line", newLine);
-    router.push(`/andon?${params.toString()}`);
+    router.push(`/?${params.toString()}`);
   };
 
   const generateMonthOptions = () => {

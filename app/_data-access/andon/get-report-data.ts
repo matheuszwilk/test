@@ -22,8 +22,6 @@ export const getAndonReportData = async (
   targetMonth: string,
   line?: string,
 ): Promise<AndonReportDataDto[]> => {
-  const formattedDate = `${targetMonth}-01`;
-
   const equipmentLineFilter =
     line && line !== "All"
       ? Prisma.sql`AND equipment_line = ${line}`
@@ -46,6 +44,7 @@ export const getAndonReportData = async (
     WHERE year_month = ${targetMonth}
     ${equipmentLineFilter}
     ORDER BY year_month ASC, andon_time DESC
+    LIMIT 5
   `;
 
   revalidatePath("/andon");

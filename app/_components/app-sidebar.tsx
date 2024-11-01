@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Bot, LayoutDashboard, SquareTerminal } from "lucide-react";
+import { LayoutDashboard, SquareTerminal } from "lucide-react";
 import { NavMain } from "@/app/_components/nav-main";
 import { NavUser } from "@/app/_components/nav-user";
 import {
@@ -31,26 +31,14 @@ const data = {
   ],
   navMain: [
     {
-      title: "Products Area",
+      title: "Andon Report",
       url: "#",
       icon: SquareTerminal,
       isActive: false,
       items: [
         {
-          title: "Products",
-          url: "/products",
-        },
-      ],
-    },
-    {
-      title: "Sales Area",
-      url: "#",
-      icon: Bot,
-      isActive: false,
-      items: [
-        {
-          title: "Sales",
-          url: "/sales",
+          title: "Report",
+          url: "/report",
         },
       ],
     },

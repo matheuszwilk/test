@@ -1,5 +1,4 @@
 import { DataTable } from "../_components/ui/data-table";
-import { DataTable2 } from "../_components/ui/data-table2";
 // import { andonTableColumns } from "./_components/table-andon-columns";
 import { AndonDataDto, getAndonData } from "../_data-access/andon/get-andon";
 import Header, {
@@ -27,16 +26,16 @@ import { andonTableColumnsByYear } from "./_components/table-andon-columns-by-ye
 import ChartMonth from "./_components/chart-month";
 import ChartWeek from "./_components/chart-week";
 import ChartYear from "./_components/chart-year";
-import { getDefectAccData } from "../_data-access/andon/get-defect-acc-by-time";
-import { DefectAccDataDto } from "../_data-access/andon/get-defect-acc-by-time";
-import ChartDefect from "./_components/chart-defect-time";
-import ChartDefectByQty from "./_components/chart-defect-qty";
-import { getDefectQtyAccData } from "../_data-access/andon/get-defect-acc-by-qty";
-import { DefectQtyAccDataDto } from "../_data-access/andon/get-defect-acc-by-qty";
-import { andonTableColumns } from "../products/_components/table-andon-columns";
-import { AndonReportDataDto } from "../_data-access/andon/get-report-data";
-import { getAndonReportData } from "../_data-access/andon/get-report-data";
-import { defectReportColumns } from "./_components/table-defect-report";
+// import { getDefectAccData } from "../_data-access/andon/get-defect-acc-by-time";
+// import { DefectAccDataDto } from "../_data-access/andon/get-defect-acc-by-time";
+// import ChartDefect from "./_components/chart-defect-time";
+// import ChartDefectByQty from "./_components/chart-defect-qty";
+// import { getDefectQtyAccData } from "../_data-access/andon/get-defect-acc-by-qty";
+// import { DefectQtyAccDataDto } from "../_data-access/andon/get-defect-acc-by-qty";
+import { andonTableColumns } from "./_components/table-andon-columns-by-week";
+// import { AndonReportDataDto } from "../_data-access/andon/get-report-data";
+// import { getAndonReportData } from "../_data-access/andon/get-report-data";
+// import { defectReportColumns } from "./_components/table-defect-report";
 
 // Essa página será montada uma vez e reutilizada (SSG), podendo ser incrementada de forma regenerativa (ISR)
 export const dynamic = "force-dynamic";
@@ -61,21 +60,21 @@ const AndonPage = async ({
     targetLine,
   );
 
-  const defectAccData: DefectAccDataDto[] = await getDefectAccData(
-    targetMonth,
-    targetLine,
-  );
-  const defectQtyAccData: DefectQtyAccDataDto[] = await getDefectQtyAccData(
-    targetMonth,
-    targetLine,
-  );
+  // const defectAccData: DefectAccDataDto[] = await getDefectAccData(
+  //   targetMonth,
+  //   targetLine,
+  // );
+  // const defectQtyAccData: DefectQtyAccDataDto[] = await getDefectQtyAccData(
+  //   targetMonth,
+  //   targetLine,
+  // );
 
-  const andonReportData: AndonReportDataDto[] = await getAndonReportData(
-    targetMonth,
-    targetLine,
-  );
+  // const andonReportData: AndonReportDataDto[] = await getAndonReportData(
+  //   targetMonth,
+  //   targetLine,
+  // );
 
-  console.log(andonReportData);
+  console.log(andonData);
 
   return (
     <div className="w-full space-y-8 rounded-lg bg-background p-8">
@@ -97,8 +96,8 @@ const AndonPage = async ({
       </Header>
       {/* <ChartDefect data={defectAccData} />
       <ChartDefectByQty data={defectQtyAccData} /> */}
-      <DataTable columns={defectReportColumns} data={andonReportData} />
-      <div className="flex w-full flex-row gap-4 overflow-auto">
+      {/* <DataTable columns={defectReportColumns} data={andonReportData} /> */}
+      <div className="flex w-full flex-row gap-4">
         <div className="flex w-full flex-col gap-2">
           <div>
             <ChartYear data={andonByYearData} />
@@ -107,7 +106,7 @@ const AndonPage = async ({
         </div>
         <div className="flex w-full flex-col gap-2">
           <ChartMonth data={andonByMonthData} />
-          <DataTable2
+          <DataTable
             columns={andonTableColumnsByMonth}
             data={andonByMonthData}
           />
