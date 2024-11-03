@@ -142,6 +142,6 @@ export const getAllLineAndonData = async (targetYear: string, line?: string): Pr
     week_numbers: weekNumbersArray
   }));
 
-  revalidatePath('/andon');
+  revalidatePath('/');
   return resultWithWeekNumbers;
 };

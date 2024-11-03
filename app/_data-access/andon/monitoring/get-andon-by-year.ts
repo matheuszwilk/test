@@ -7,21 +7,29 @@ import { revalidatePath } from "next/cache";
 export interface AndonByYearDataDto {
   title: string;
   year_1: number;
-  year_2: number;
+  year_2: number; 
   year_numbers: string[];
 }
 
 interface RawAndonData {
   title: string;
-  years: { [key: string]: number };
+  years: Record<string, number>;
 }
 
-export const getAndonByYearData = async (targetYear: string, line?: string): Promise<AndonByYearDataDto[]> => {
-  // Modificar para usar o primeiro dia do mês
-  const formattedDate = `${targetYear}-01`; // Adicionado -01 para dia
+interface YearlyData {
+  year: Date;
+  man_hour: number;
+  andon_time: number;
+  andon_stop_qty: number;
+  instant_stop_rate: number;
+  target: number;
+  achievement_rate: number;
+}
 
-  // Generate the last 2 years of the year selected
-  const yearNumbers = await db.$queryRaw<{ year_number: string }[]>`
+const TARGET_RATE = 0.02;
+
+const generateYearSeries = async (formattedDate: string) => {
+  return await db.$queryRaw<{ year_number: string }[]>`
     SELECT TO_CHAR(generate_series(
       ${formattedDate}::date - interval '1 year',
       ${formattedDate}::date,
@@ -29,11 +37,42 @@ export const getAndonByYearData = async (targetYear: string, line?: string): Pro
     ), 'YYYY') AS year_number
     ORDER BY year_number
   `;
+};
 
+const buildLineFilters = (line?: string) => {
+  const lineFilter = line && line !== 'All' 
+    ? Prisma.sql`AND line = ${line}` 
+    : Prisma.empty;
+    
+  const equipmentLineFilter = line && line !== 'All'
+    ? Prisma.sql`AND equipment_line = ${line}`
+    : Prisma.empty;
+
+  return { lineFilter, equipmentLineFilter };
+};
+
+const calculateMetrics = (data: YearlyData) => {
+  const metrics = [
+    { title: 'Man Hour', value: data.man_hour },
+    { title: 'Andon', value: data.andon_time },
+    { title: 'Andon Stop Qty', value: data.andon_stop_qty },
+    { title: 'Target', value: data.target },
+    { title: 'Instant Stop Rate', value: data.instant_stop_rate },
+    { title: 'Achievement Rate', value: data.achievement_rate }
+  ];
+
+  return metrics;
+};
+
+export const getAndonByYearData = async (
+  targetYear: string, 
+  line?: string
+): Promise<AndonByYearDataDto[]> => {
+  const formattedDate = `${targetYear}-01`;
+  const { lineFilter, equipmentLineFilter } = buildLineFilters(line);
+
+  const yearNumbers = await generateYearSeries(formattedDate);
   const yearNumbersArray = yearNumbers.map(y => y.year_number);
-
-  const lineFilter = line && line !== 'All' ? Prisma.sql`AND line = ${line}` : Prisma.empty;
-  const equipmentLineFilter = line && line !== 'All' ? Prisma.sql`AND equipment_line = ${line}` : Prisma.empty;
 
   const result = await db.$queryRaw<RawAndonData[]>`
     WITH common_filter AS (
@@ -89,12 +128,6 @@ export const getAndonByYearData = async (targetYear: string, line?: string): Pro
       LEFT JOIN yearly_manhour ym ON y.year = ym.year
       LEFT JOIN yearly_andon ya ON y.year = ya.year
     ),
-    target_data AS (
-      SELECT
-          year,
-          0.02 AS target
-      FROM years
-    ),
     final_data AS (
       SELECT
           cd.year,
@@ -102,68 +135,40 @@ export const getAndonByYearData = async (targetYear: string, line?: string): Pro
           cd.andon_time,
           cd.andon_stop_qty,
           cd.instant_stop_rate,
-          td.target,
+          ${TARGET_RATE} AS target,
           CASE 
-              WHEN td.target != 0 THEN (td.target - cd.instant_stop_rate) / td.target
+              WHEN ${TARGET_RATE} != 0 THEN (${TARGET_RATE} - cd.instant_stop_rate) / ${TARGET_RATE}
               ELSE 0 
           END AS achievement_rate
       FROM combined_data cd
-      JOIN target_data td ON cd.year = td.year
-    ),
-    result_data AS (
-      SELECT 
-          'Man Hour' AS title, 
-          1 AS sort_order,
-          jsonb_object_agg(TO_CHAR(year, 'YYYY'), man_hour) AS years
-      FROM final_data
-      
-      UNION ALL
-      
-      SELECT 
-          'Andon' AS title, 
-           2 AS sort_order,
-          jsonb_object_agg(TO_CHAR(year, 'YYYY'), andon_time) AS years
-      FROM final_data
-      
-      UNION ALL
-      
-      SELECT 
-          'Andon Stop Qty' AS title, 
-           3 AS sort_order,
-          jsonb_object_agg(TO_CHAR(year, 'YYYY'), andon_stop_qty) AS years
-      FROM final_data
-      
-      UNION ALL
-      
-      SELECT 
-          'Target' AS title, 
-           4 AS sort_order,
-          jsonb_object_agg(TO_CHAR(year, 'YYYY'), target) AS years
-      FROM final_data
-      
-      UNION ALL
-      
-      SELECT 
-          'Instant Stop Rate' AS title, 
-           5 AS sort_order,
-          jsonb_object_agg(TO_CHAR(year, 'YYYY'), instant_stop_rate) AS years
-      FROM final_data
-      
-      UNION ALL
-      
-      SELECT 
-          'Achievement Rate' AS title, 
-           6 AS sort_order,
-          jsonb_object_agg(TO_CHAR(year, 'YYYY'), achievement_rate) AS years
-      FROM final_data
     )
-    SELECT 
-      title,
-      years
-    FROM 
-      result_data
-    ORDER BY 
-      sort_order
+    SELECT title, years
+    FROM (
+      SELECT 
+        metric.title,
+        jsonb_object_agg(TO_CHAR(fd.year, 'YYYY'), 
+          CASE 
+            WHEN metric.title = 'Man Hour' THEN fd.man_hour
+            WHEN metric.title = 'Andon' THEN fd.andon_time
+            WHEN metric.title = 'Andon Stop Qty' THEN fd.andon_stop_qty
+            WHEN metric.title = 'Target' THEN fd.target
+            WHEN metric.title = 'Instant Stop Rate' THEN fd.instant_stop_rate
+            WHEN metric.title = 'Achievement Rate' THEN fd.achievement_rate
+          END
+        ) AS years
+      FROM final_data fd
+      CROSS JOIN (
+        VALUES 
+          ('Man Hour', 1),
+          ('Andon', 2),
+          ('Andon Stop Qty', 3),
+          ('Target', 4),
+          ('Instant Stop Rate', 5),
+          ('Achievement Rate', 6)
+      ) AS metric(title, sort_order)
+      GROUP BY metric.title, metric.sort_order
+      ORDER BY metric.sort_order
+    ) result_data
   `;
 
   const formattedResult: AndonByYearDataDto[] = result.map(item => ({
@@ -173,6 +178,6 @@ export const getAndonByYearData = async (targetYear: string, line?: string): Pro
     year_numbers: yearNumbersArray
   }));
 
-  revalidatePath('/andon');
+  revalidatePath('/');
   return formattedResult;
 };

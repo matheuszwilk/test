@@ -1,7 +1,7 @@
 import { DataTable } from "../_components/ui/data-table";
 import { productTableColumns } from "./_components/table-columns";
 import { getProducts } from "../_data-access/product/get-products";
-import { AndonDataDto, getAndonData } from "../_data-access/andon/get-andon";
+import { AndonDataDto, getAndonData } from "../_data-access/andon/monitoring/get-andon-by-week";
 import AddProductButton from "./_components/create-product-button";
 import Header, {
   HeaderLeft,

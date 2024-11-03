@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Select,
@@ -14,6 +14,18 @@ interface SelectMonthProps {
   initialMonth: string;
   initialLine: string;
 }
+
+interface Option {
+  value: string;
+  label: string;
+}
+
+const INITIAL_YEAR = 2023;
+const LINES: Option[] = [
+  { value: "All", label: "All Lines" },
+  { value: "[AC1] AZ_CAC01", label: "[AC1] AZ_CAC01" },
+  { value: "[AA1] AZ_RAC01", label: "[AA1] AZ_RAC01" },
+];
 
 const SelectMonthAndLine: React.FC<SelectMonthProps> = ({
   initialMonth,
@@ -29,48 +41,40 @@ const SelectMonthAndLine: React.FC<SelectMonthProps> = ({
     setSelectedLine(initialLine);
   }, [initialMonth, initialLine]);
 
+  const updateUrlParams = (month: string, line: string) => {
+    const params = new URLSearchParams(searchParams);
+    params.set("month", month);
+    params.set("line", line);
+    router.push(`/report?${params.toString()}`);
+  };
+
   const handleMonthChange = (newMonth: string) => {
     setSelectedMonth(newMonth);
-    const params = new URLSearchParams(searchParams);
-    params.set("month", newMonth);
-    params.set("line", selectedLine);
-    router.push(`/report?${params.toString()}`); // Removed trailing slash
+    updateUrlParams(newMonth, selectedLine);
   };
 
   const handleLineChange = (newLine: string) => {
     setSelectedLine(newLine);
-    const params = new URLSearchParams(searchParams);
-    params.set("month", selectedMonth);
-    params.set("line", newLine);
-    router.push(`/report?${params.toString()}`); // Removed trailing slash
+    updateUrlParams(selectedMonth, newLine);
   };
 
-  const generateMonthOptions = () => {
-    const options = [];
+  const monthOptions = useMemo(() => {
+    const options: Option[] = [];
     const currentYear = new Date().getFullYear();
     const currentMonth = new Date().getMonth() + 1;
 
-    for (let year = 2023; year <= currentYear; year++) {
-      for (
-        let month = 1;
-        month <= (year === currentYear ? currentMonth : 12);
-        month++
-      ) {
+    for (let year = INITIAL_YEAR; year <= currentYear; year++) {
+      const monthLimit = year === currentYear ? currentMonth : 12;
+      
+      for (let month = 1; month <= monthLimit; month++) {
         const monthString = month.toString().padStart(2, "0");
         const value = `${year}-${monthString}`;
-        const label = value;
-        options.push({ value, label });
+        options.push({ value, label: value });
       }
     }
 
     return options.reverse();
-  };
-
-  const lines = [
-    { value: "All", label: "All Lines" },
-    { value: "[AC1] AZ_CAC01", label: "[AC1] AZ_CAC01" },
-    { value: "[AA1] AZ_RAC01", label: "[AA1] AZ_RAC01" },
-  ];
+  }, []);
 
   return (
     <>
@@ -79,9 +83,9 @@ const SelectMonthAndLine: React.FC<SelectMonthProps> = ({
           <SelectValue placeholder="Select a month" />
         </SelectTrigger>
         <SelectContent>
-          {generateMonthOptions().map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
+          {monthOptions.map(({ value, label }) => (
+            <SelectItem key={value} value={value}>
+              {label}
             </SelectItem>
           ))}
         </SelectContent>
@@ -91,9 +95,9 @@ const SelectMonthAndLine: React.FC<SelectMonthProps> = ({
           <SelectValue placeholder="Select a line" />
         </SelectTrigger>
         <SelectContent>
-          {lines.map((line) => (
-            <SelectItem key={line.value} value={line.value}>
-              {line.label}
+          {LINES.map(({ value, label }) => (
+            <SelectItem key={value} value={value}>
+              {label}
             </SelectItem>
           ))}
         </SelectContent>

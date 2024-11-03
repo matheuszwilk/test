@@ -4,31 +4,31 @@ import { db } from "@/app/_lib/prisma";
 import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
-export interface DefectQtyAccDataDto {
+export interface DefectAccDataDto {
   month: string;
   equipment_line: string;
   andon_process: string;
-  total_andon_count: number;
+  total_andon_time: number;
   andon_porcent: number;
   andon_procent_acc: number;
 }
 
-export const getDefectQtyAccData = async (
+export const getDefectAccData = async (
   targetMonth: string,
   line?: string,
-): Promise<DefectQtyAccDataDto[]> => {
+): Promise<DefectAccDataDto[]> => {
   const lineFilter =
     line && line !== "All"
       ? Prisma.sql`AND equipment_line = ${line}`
       : Prisma.empty;
 
-  const result = await db.$queryRaw<DefectQtyAccDataDto[]>`
+  const result = await db.$queryRaw<DefectAccDataDto[]>`
     WITH top_andon AS (
       SELECT
         TO_CHAR("end"::date, 'YYYY-MM') AS month,
         equipment_line,
         andon_process,
-        COUNT(*) AS total_andon_count
+        SUM(andon_time) AS total_andon_time
       FROM andon
       WHERE TO_CHAR("end"::date, 'YYYY-MM') = ${targetMonth}
       ${lineFilter}
@@ -36,11 +36,11 @@ export const getDefectQtyAccData = async (
         TO_CHAR("end"::date, 'YYYY-MM'),
         equipment_line,
         andon_process
-      ORDER BY COUNT(*) DESC
+      ORDER BY SUM(andon_time) DESC
       LIMIT 10
     ),
-    total_count AS (
-      SELECT SUM(total_andon_count) as total
+    total_time AS (
+      SELECT SUM(total_andon_time) as total
       FROM top_andon
     ),
     andon_data AS (
@@ -48,27 +48,27 @@ export const getDefectQtyAccData = async (
         month,
         equipment_line,
         andon_process,
-        CAST(total_andon_count AS integer) AS total_andon_count,
-        CAST(ROUND(CAST((total_andon_count * 100.0 / total) AS numeric), 6) AS float) AS andon_porcent
+        CAST(total_andon_time AS integer) AS total_andon_time,
+        CAST(ROUND(CAST((total_andon_time * 100.0 / total) AS numeric), 6) AS float) AS andon_porcent
       FROM
-        top_andon, total_count
+        top_andon, total_time
     )
     SELECT
       month,
       equipment_line,
       andon_process,
-      total_andon_count,
+      total_andon_time,
       andon_porcent,
-      LEAST(100, CAST(ROUND(CAST(SUM(andon_porcent) OVER (ORDER BY total_andon_count DESC) AS numeric), 6) AS float)) AS andon_procent_acc
+      LEAST(100, CAST(ROUND(CAST(SUM(andon_porcent) OVER (ORDER BY total_andon_time DESC) AS numeric), 6) AS float)) AS andon_procent_acc
     FROM
       andon_data
     ORDER BY
-      total_andon_count DESC,
+      total_andon_time DESC,
       month,
       andon_process,
       equipment_line
   `;
 
-  revalidatePath("/andon");
+  revalidatePath("/report");
   return result;
 };

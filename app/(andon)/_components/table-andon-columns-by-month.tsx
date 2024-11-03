@@ -4,9 +4,9 @@ import React from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowDownCircle, ArrowUpCircle } from "lucide-react";
 import { Badge } from "@/app/_components/ui/badge";
-import { AndonByMonthDataDto } from "@/app/_data-access/andon/get-andon-by-month";
+import { AndonByMonthDataDto } from "@/app/_data-access/andon/monitoring/get-andon-by-month";
 
-type CellFormatterFunction = (value: number) => React.ReactNode;
+type CellFormatterFunction = (value: number) => React.ReactNode;  
 
 const CELL_FORMATTERS: Record<string, CellFormatterFunction> = {
   "Man Hour": (value) => `${Number(value).toFixed(0)}`,

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { ColumnDef } from "@tanstack/react-table";
-import { AndonByYearDataDto } from "@/app/_data-access/andon/get-andon-by-year";
+import { AndonByYearDataDto } from "@/app/_data-access/andon/monitoring/get-andon-by-year";
 import { ArrowDownCircle, ArrowUpCircle } from "lucide-react";
 import { Badge } from "@/app/_components/ui/badge";
 

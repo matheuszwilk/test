@@ -3,7 +3,7 @@
 import React from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/app/_components/ui/badge";
-import { AndonReportDataDto } from "@/app/_data-access/andon/get-report-data";
+import { AndonReportDataDto } from "@/app/_data-access/andon/report/get-report-data";
 import { FileTextIcon } from "lucide-react";
 import DefectReportTableDropdownMenu from "./table-dropdown-menu-report";
 

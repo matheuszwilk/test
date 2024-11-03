@@ -1,5 +1,5 @@
 import { DataTable } from "../_components/ui/data-table";
-import { AndonDataDto, getAndonData } from "../_data-access/andon/get-andon";
+import { AndonByWeekDataDto, getAndonData } from "../_data-access/andon/monitoring/get-andon-by-week";
 import Header, {
   HeaderLeft,
   HeaderRight,
@@ -10,12 +10,12 @@ import SelectMonthAndLine from "./_components/filter-month-and-line";
 import {
   AndonByMonthDataDto,
   getAndonByMonthData,
-} from "../_data-access/andon/get-andon-by-month";
+} from "../_data-access/andon/monitoring/get-andon-by-month";
 import { andonTableColumnsByMonth } from "./_components/table-andon-columns-by-month";
 import {
   AndonByYearDataDto,
   getAndonByYearData,
-} from "../_data-access/andon/get-andon-by-year";
+} from "../_data-access/andon/monitoring/get-andon-by-year";
 import { andonTableColumnsByYear } from "./_components/table-andon-columns-by-year";
 import ChartMonth from "./_components/chart-month";
 import ChartWeek from "./_components/chart-week";
@@ -36,7 +36,7 @@ const getCurrentMonth = () => {
 };
 
 interface AndonDataResponse {
-  andonData: AndonDataDto[];
+  andonData: AndonByWeekDataDto[];
   andonByMonthData: AndonByMonthDataDto[];
   andonByYearData: AndonByYearDataDto[];
 }
@@ -116,7 +116,7 @@ const AndonPage = async ({ searchParams }: { searchParams: SearchParams }) => {
           data={andonByMonthData}
           columns={andonTableColumnsByMonth}
         />
-        <ChartSection<AndonDataDto>
+        <ChartSection<AndonByWeekDataDto>
           chart={<ChartWeek data={andonData} />}
           data={andonData}
           columns={andonTableColumns}

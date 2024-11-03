@@ -4,7 +4,7 @@ import { db } from "@/app/_lib/prisma";
 import { revalidatePath } from "next/cache";
 import { Prisma } from "@prisma/client";
 
-export interface AndonDataDto {
+export interface AndonByWeekDataDto {
   title: string;
   week_1: number;
   week_2: number;
@@ -17,7 +17,7 @@ export interface AndonDataDto {
 export const getAndonData = async (
   targetMonth: string,
   line?: string,
-): Promise<AndonDataDto[]> => {
+): Promise<AndonByWeekDataDto[]> => {
   const [year, month] = targetMonth.split("-");
   const formattedDate = `${year}-${month.padStart(2, "0")}-2`;
 
@@ -55,7 +55,7 @@ export const getAndonData = async (
       ? Prisma.sql`AND equipment_line = ${line}`
       : Prisma.empty;
 
-  const result = await db.$queryRaw<AndonDataDto[]>`
+  const result = await db.$queryRaw<AndonByWeekDataDto[]>`
     WITH common_filter AS (
       SELECT ${formattedDate}::date AS target_month
     ),
@@ -163,6 +163,6 @@ export const getAndonData = async (
     week_numbers: [week1, week2, week3, week4, week5].filter(Boolean),
   }));
 
-  revalidatePath("/andon");
+  revalidatePath("/");
   return resultWithWeekNumbers;
 };

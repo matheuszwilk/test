@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { AndonDataDto } from "@/app/_data-access/andon/get-andon";
+import { AndonByWeekDataDto } from "@/app/_data-access/andon/monitoring/get-andon-by-week";
 import { ArrowDownCircle, ArrowUpCircle } from "lucide-react";
 import { Badge } from "@/app/_components/ui/badge";
 
@@ -17,7 +17,7 @@ const WEEK_COLUMNS: WeekColumnConfig[] = [
   { weekNumber: 5, accessorKey: "week_5" },
 ];
 
-const createWeekColumn = ({ weekNumber, accessorKey }: WeekColumnConfig): ColumnDef<AndonDataDto> => ({
+const createWeekColumn = ({ weekNumber, accessorKey }: WeekColumnConfig): ColumnDef<AndonByWeekDataDto> => ({
   accessorKey,
   header: ({ table }) => (
     <strong>
@@ -27,7 +27,7 @@ const createWeekColumn = ({ weekNumber, accessorKey }: WeekColumnConfig): Column
   cell: ({ row }) => formatCellValue(row.original.title, row.getValue(accessorKey)),
 });
 
-export const andonTableColumns: ColumnDef<AndonDataDto>[] = WEEK_COLUMNS.map(createWeekColumn);
+export const andonTableColumns: ColumnDef<AndonByWeekDataDto>[] = WEEK_COLUMNS.map(createWeekColumn);
 
 const VALUE_FORMATTERS = {
   "Man Hour": (value: number) => Number(value).toFixed(0),

@@ -47,6 +47,6 @@ export const getAndonReportData = async (
     LIMIT 5
   `;
 
-  revalidatePath("/andon");
+  revalidatePath("/report");
   return result;
 };

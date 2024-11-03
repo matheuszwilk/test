@@ -5,15 +5,15 @@ import Header, {
   HeaderSubtitle,
   HeaderTitle,
 } from "@/app/_components/header";
-import SelectMonthAndLine from "./_components/select-month-and-line";
-import { getDefectAccData } from "../_data-access/andon/get-defect-acc-by-time";
-import { DefectAccDataDto } from "../_data-access/andon/get-defect-acc-by-time";
+import SelectMonthAndLine from "./_components/filter-month-and-line";
+import { getDefectAccData } from "../_data-access/andon/report/get-defect-acc-by-time";
+import { DefectAccDataDto } from "../_data-access/andon/report/get-defect-acc-by-time";
 import ChartDefect from "./_components/chart-defect-time";
 import ChartDefectByQty from "./_components/chart-defect-qty";
-import { getDefectQtyAccData } from "../_data-access/andon/get-defect-acc-by-qty";
-import { DefectQtyAccDataDto } from "../_data-access/andon/get-defect-acc-by-qty";
-import { AndonReportDataDto } from "../_data-access/andon/get-report-data";
-import { getAndonReportData } from "../_data-access/andon/get-report-data";
+import { getDefectQtyAccData } from "../_data-access/andon/report/get-defect-acc-by-qty";
+import { DefectQtyAccDataDto } from "../_data-access/andon/report/get-defect-acc-by-qty";
+import { AndonReportDataDto } from "../_data-access/andon/report/get-report-data";
+import { getAndonReportData } from "../_data-access/andon/report/get-report-data";
 import { defectReportColumns } from "./_components/table-defect-report";
 
 // Essa página será montada uma vez e reutilizada (SSG), podendo ser incrementada de forma regenerativa (ISR)

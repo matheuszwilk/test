@@ -12,7 +12,7 @@ import {
   Tooltip,
 } from "recharts";
 import { useTheme } from "next-themes";
-import { DefectQtyAccDataDto } from "../../_data-access/andon/get-defect-acc-by-qty";
+import { DefectQtyAccDataDto } from "../../_data-access/andon/report/get-defect-acc-by-qty";
 
 interface ChartDefectProps {
   data: DefectQtyAccDataDto[];
