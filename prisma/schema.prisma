@@ -1,5 +1,5 @@
 generator client {
-  provider      = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -8,36 +8,71 @@ datasource db {
 }
 
 model Product {
-  id           String        @id @default(uuid())
-  name         String
-  price        Decimal       @db.Decimal(10, 2)
-  stock        Int
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  saleProducts SaleProduct[]
+  id          String        @id
+  name        String
+  price       Decimal       @db.Decimal(10, 2)
+  stock       Int
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime
+  SaleProduct SaleProduct[]
 }
 
 model Sale {
-  id           String        @id @default(uuid())
-  date         DateTime
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  saleProducts SaleProduct[]
+  id          String        @id
+  date        DateTime
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime
+  SaleProduct SaleProduct[]
 }
 
 model SaleProduct {
-  id        String   @id @default(uuid())
+  id        String   @id
   saleId    String
   productId String
   quantity  Int
   unitPrice Decimal  @db.Decimal(10, 2)
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  sale      Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  updatedAt DateTime
+  Product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  Sale      Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
 
   @@index([productId])
   @@index([saleId])
+}
+
+model andon {
+  id                 String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  no                 Int?
+  chk                String?
+  status             String?
+  equipment_line     String?
+  andon_process      String?
+  andon_no           Int?
+  main_sub           String?
+  start              DateTime? @db.Timestamp(6)
+  end                DateTime? @db.Timestamp(6)
+  run_time_hms       String?
+  run_time_sec       Int?
+  warning_stop       String?
+  andon_type         String?
+  cause_department   String?
+  cause_department_1 String?
+  reason             String?
+  andon_time         Int?
+}
+
+model andon_monthly_top_defects {
+  id                   String    @id @unique @db.Uuid
+  year_month           String?   @db.VarChar(7)
+  andon_process        String?   @db.VarChar(50)
+  equipment_line       String?   @db.VarChar(50)
+  reason               String?   @db.VarChar(200)
+  end_date             DateTime? @db.Timestamp(6)
+  cause_department     String?   @db.VarChar(50)
+  andon_time           Int?
+  createdat            DateTime? @default(now()) @db.Timestamp(6)
+  status               String?   @default("NG") @db.VarChar(2)
+  action_plan_file_url String?
 }
 
 model manhour {
@@ -64,35 +99,4 @@ model manhour {
   direct_on_operation          Int?
   indirect_on_operation        Int?
   total_on_operation           Int?
-}
-
-model andon {
-  id                 String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  no                 Int?
-  chk                String?
-  status             String?
-  equipment_line     String?
-  andon_process      String?
-  andon_no           Int?
-  main_sub           String?
-  start              DateTime? @db.Timestamp(6)
-  end                DateTime? @db.Timestamp(6)
-  run_time_hms       String?
-  run_time_sec       Int?
-  warning_stop       String?
-  andon_type         String?
-  cause_department   String?
-  cause_department_1 String?
-  reason             String?
-  andon_time         Int?
-}
-
-model novatabela {
-  id         Int       @id(map: "nova_tabela_pkey") @default(autoincrement())
-  Date       DateTime? @db.Date
-  Product    String?
-  Batch      Int?
-  Operator   String?
-  Start_Time DateTime? @map("Start Time") @db.Time(6)
-  End_Time   DateTime? @map("End Time") @db.Time(6)
 }

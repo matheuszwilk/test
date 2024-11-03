@@ -10,48 +10,110 @@ import {
   ComposedChart,
   ResponsiveContainer,
   Tooltip,
+  TooltipProps,
 } from "recharts";
 import { useTheme } from "next-themes";
 
-interface ChartYearProps {
-  data: {
-    title: string;
-    year_1: number;
-    year_2: number;
-    year_numbers: string[];
-  }[];
+interface YearData {
+  title: string;
+  year_1: number;
+  year_2: number;
+  year_numbers: string[];
 }
 
-const ChartYear = ({ data }: ChartYearProps) => {
-  const { theme } = useTheme();
+interface ChartData {
+  year: string;
+  "Andon Stop Qty": number;
+  Target: number;
+  "Instant Stop Rate": number;
+}
 
-  const chartData = data[0].year_numbers.map((year, index) => {
-    const yearKey = `year_${index + 1}`;
+interface ChartYearProps {
+  data: YearData[];
+}
+
+const ChartYear: React.FC<ChartYearProps> = ({ data }) => {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+
+  const chartStyles = {
+    text: {
+      color: isDark ? "hsl(var(--muted-foreground))" : "hsl(var(--foreground))",
+    },
+    grid: {
+      color: "hsl(var(--border))",
+    },
+    tooltip: {
+      background: isDark ? "hsl(var(--background))" : "white",
+      border: "1px solid hsl(var(--border))",
+      text: isDark ? "rgb(255, 255, 255)" : "rgb(0, 0, 0)",
+    },
+  };
+
+  const formatTooltipValue = (value: number, name: string): string => {
+    return name.includes("Rate") || name === "Target"
+      ? `${(value * 100).toFixed(2)}%`
+      : value.toLocaleString();
+  };
+
+  const chartData: ChartData[] = data[0].year_numbers.map((year, index) => {
+    const yearKey = `year_${index + 1}` as const;
     return {
       year,
-      "Andon Stop Qty": data[2][yearKey as keyof (typeof data)[2]],
-      Target: data[3][yearKey as keyof (typeof data)[3]],
-      "Instant Stop Rate": data[4][yearKey as keyof (typeof data)[4]],
+      "Andon Stop Qty": Number(data[2][yearKey as keyof YearData]),
+      Target: Number(data[3][yearKey as keyof YearData]),
+      "Instant Stop Rate": Number(data[4][yearKey as keyof YearData]),
     };
   });
 
-  const isDark = theme === "dark";
+  const renderTooltipContent = (props: TooltipProps<number, string>) => {
+    const { payload, label } = props;
+    if (!payload) return null;
 
-  const textColor = isDark
-    ? "hsl(var(--muted-foreground))"
-    : "hsl(var(--foreground))";
-  const gridColor = isDark ? "hsl(var(--border))" : "hsl(var(--border))";
+    return (
+      <div
+        style={{
+          backgroundColor: chartStyles.tooltip.background,
+          border: chartStyles.tooltip.border,
+          borderRadius: "8px",
+          padding: "8px 12px",
+          boxShadow: "0 4px 12px rgba(255, 0, 81, 0.15)",
+          backdropFilter: "blur(8px)",
+        }}
+      >
+        <p
+          style={{
+            color: chartStyles.tooltip.text,
+            fontWeight: 300,
+            fontSize: "12px",
+            marginBottom: "4px",
+            textTransform: "uppercase",
+            letterSpacing: "0.5px",
+          }}
+        >
+          {label}
+        </p>
+        {payload.map((entry) => (
+          <div key={entry.name} style={{ fontSize: "12px" }}>
+            <span style={{ color: entry.color || chartStyles.tooltip.text }}>
+              {entry.name}: {formatTooltipValue(entry.value as number, entry.name || '')}
+            </span>
+          </div>
+        ))}
+      </div>
+    );
+  };
 
   return (
     <div className="h-[250px] w-full">
-      <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer>
         <ComposedChart
           data={chartData}
           margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
         >
           <CartesianGrid
             strokeDasharray="3 3"
-            stroke={gridColor}
+            stroke={chartStyles.grid.color}
             vertical={false}
           />
           <XAxis
@@ -59,78 +121,30 @@ const ChartYear = ({ data }: ChartYearProps) => {
             tickLine={false}
             axisLine={false}
             tickMargin={8}
-            tick={{ fill: textColor, fontSize: 12 }}
-          ></XAxis>
+            tick={{ fill: chartStyles.text.color, fontSize: 12 }}
+          />
           <YAxis
             yAxisId="left"
-            stroke={textColor}
-            tick={{ fill: textColor, fontSize: 12 }}
+            stroke={chartStyles.text.color}
+            tick={{ fill: chartStyles.text.color, fontSize: 12 }}
             tickLine={false}
             axisLine={false}
-          ></YAxis>
+          />
           <YAxis
             yAxisId="right"
             orientation="right"
-            stroke={textColor}
-            tick={{ fill: textColor, fontSize: 12 }}
+            stroke={chartStyles.text.color}
+            tick={{ fill: chartStyles.text.color, fontSize: 12 }}
             tickLine={false}
             axisLine={false}
-          ></YAxis>
-          <Tooltip
-            contentStyle={{
-              backgroundColor: isDark ? "hsl(var(--background))" : "white",
-              border: "1px solid hsl(var(--border))",
-              borderRadius: "8px",
-              padding: "8px 12px",
-              boxShadow: "0 4px 12px rgba(255, 0, 81, 0.15)",
-              backdropFilter: "blur(8px)",
-              WebkitBackdropFilter: "blur(8px)",
-              transition: "all 0.2s ease",
-            }}
-            labelStyle={{
-              color: isDark ? "rgb(255, 255, 255)" : "rgb(0, 0, 0)",
-              fontWeight: 300,
-              fontSize: "12px",
-              marginBottom: "4px",
-              textTransform: "uppercase",
-              letterSpacing: "0.5px",
-            }}
-            formatter={(value: number, name: string) => {
-              const formattedValue =
-                name.includes("Rate") || name === "Target"
-                  ? `${(value * 100).toFixed(2)}%`
-                  : value.toLocaleString();
-
-              return [
-                <span
-                  style={{
-                    color: isDark ? "rgb(255, 255, 255)" : "rgb(0, 0, 0)",
-                    fontWeight: 300,
-                    fontSize: "12px",
-                  }}
-                  key={name}
-                >
-                  {formattedValue}
-                </span>,
-                name,
-              ];
-            }}
-            separator=": "
-            wrapperStyle={{
-              outline: "none",
-              opacity: 0.95,
-              fontSize: "12px",
-              color: isDark ? "rgb(255, 255, 255)" : "rgb(0, 0, 0)",
-            }}
-            cursor={{ strokeWidth: 1 }}
           />
+          <Tooltip content={renderTooltipContent} />
           <Bar
             yAxisId="left"
             dataKey="Andon Stop Qty"
             fill="rgb(165, 0, 52)"
             radius={[4, 4, 0, 0]}
             barSize={40}
-            name="Andon Stop Qty"
           />
           <Line
             yAxisId="right"
@@ -138,13 +152,8 @@ const ChartYear = ({ data }: ChartYearProps) => {
             dataKey="Target"
             stroke="hsl(var(--chart-2))"
             strokeWidth={2}
-            dot={{
-              fill: "rgb(255, 255, 255)",
-            }}
-            activeDot={{
-              r: 6,
-            }}
-            name="Target"
+            dot={{ fill: "rgb(255, 255, 255)" }}
+            activeDot={{ r: 6 }}
           />
           <Line
             yAxisId="right"
@@ -152,13 +161,8 @@ const ChartYear = ({ data }: ChartYearProps) => {
             dataKey="Instant Stop Rate"
             stroke={isDark ? "rgb(255, 255, 255)" : "rgb(0, 0, 0)"}
             strokeWidth={2}
-            dot={{
-              fill: "rgb(255, 255, 255)",
-            }}
-            activeDot={{
-              r: 6,
-            }}
-            name="Instant Stop Rate"
+            dot={{ fill: "rgb(255, 255, 255)" }}
+            activeDot={{ r: 6 }}
           />
         </ComposedChart>
       </ResponsiveContainer>

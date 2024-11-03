@@ -12,7 +12,11 @@ export const upsertProduct = actionClient
     await db.product.upsert({
       where: { id: id ?? "" },
       update: data,
-      create: data,
+      create: {
+        ...data,
+        id: id ?? "",
+        updatedAt: new Date(),
+      },
     });
     revalidatePath("/products", "page");
     revalidatePath("/");

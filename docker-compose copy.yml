@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  app:
+    build: .
+    ports:
+      - "3001:3000"
+    environment:
+      DATABASE_URL: postgres://postgres:bh2ksv5y@10.193.236.56:5432/serverdb
+      NODE_ENV: "production"
+      MINIO_ENDPOINT: 10.193.236.56
+      MINIO_PORT: 9000
+      MINIO_USE_SSL: "false"
+      MINIO_ACCESS_KEY: 8cE6emMmFITeEqRkAiO2
+      MINIO_SECRET_KEY: 8dB5QAQU1L3nrfsnncztltsZQvL8bOtmwyG3nwrT
+      MINIO_BUCKET: aws-f6
+      MINIO_PUBLIC_URL: 10.193.236.56:5555
+      RESEND_API_KEY: "re_wevVmDca_A7w5PCzABN2f7ju1zwfyX3yr"  # Adicione sua chave do Resend
+      TZ: "America/Sao_Paulo"  # Garante que o horário esteja correto
+    volumes:
+      - .:/app
+    restart: unless-stopped

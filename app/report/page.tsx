@@ -42,8 +42,6 @@ const AndonPage = async ({
     targetLine,
   );
 
-  console.log(andonReportData);
-
   return (
     <div className="w-full space-y-8 rounded-lg bg-background p-8">
       <Header>
@@ -73,9 +71,6 @@ const AndonPage = async ({
         </div>
       </div>
       <DataTable columns={defectReportColumns} data={andonReportData} />
-      {/* <div>
-        <DataTable columns={andonAllTableColumns} data={allAndonData} />
-      </div> */}
     </div>
   );
 };

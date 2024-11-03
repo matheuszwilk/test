@@ -5,10 +5,11 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/app/_components/ui/badge";
 import { AndonReportDataDto } from "@/app/_data-access/andon/get-report-data";
 import { FileTextIcon } from "lucide-react";
+import DefectReportTableDropdownMenu from "./table-dropdown-menu-report";
 
 export const defectReportColumns: ColumnDef<AndonReportDataDto>[] = [
   {
-    accessorKey: "andon_process",
+    accessorKey: "andon_process", 
     header: "Process",
   },
   {
@@ -66,5 +67,10 @@ export const defectReportColumns: ColumnDef<AndonReportDataDto>[] = [
         </div>
       ) : null;
     }
-  }
+  },
+  {
+    accessorKey: "actions",
+    header: "Ações",
+    cell: ({ row }) => <DefectReportTableDropdownMenu defectReport={row.original as AndonReportDataDto} />,
+  },
 ];

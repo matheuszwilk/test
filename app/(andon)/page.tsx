@@ -7,7 +7,7 @@ import Header, {
   HeaderSubtitle,
   HeaderTitle,
 } from "@/app/_components/header";
-import SelectMonthAndLine from "./_components/select-month-and-line";
+import SelectMonthAndLine from "./_components/filter-month-and-line";
 // import {
 //   AndonAllDataDto,
 //   getAllLineAndonData,
@@ -33,6 +33,7 @@ import ChartYear from "./_components/chart-year";
 // import { getDefectQtyAccData } from "../_data-access/andon/get-defect-acc-by-qty";
 // import { DefectQtyAccDataDto } from "../_data-access/andon/get-defect-acc-by-qty";
 import { andonTableColumns } from "./_components/table-andon-columns-by-week";
+import { DottedSeparator } from "../_components/dotted-separator";
 // import { AndonReportDataDto } from "../_data-access/andon/get-report-data";
 // import { getAndonReportData } from "../_data-access/andon/get-report-data";
 // import { defectReportColumns } from "./_components/table-defect-report";
@@ -97,11 +98,11 @@ const AndonPage = async ({
       {/* <ChartDefect data={defectAccData} />
       <ChartDefectByQty data={defectQtyAccData} /> */}
       {/* <DataTable columns={defectReportColumns} data={andonReportData} /> */}
+      <DottedSeparator className="my-4" />
       <div className="flex w-full flex-row gap-4">
         <div className="flex w-full flex-col gap-2">
-          <div>
-            <ChartYear data={andonByYearData} />
-          </div>
+          <ChartYear data={andonByYearData} />
+          
           <DataTable columns={andonTableColumnsByYear} data={andonByYearData} />
         </div>
         <div className="flex w-full flex-col gap-2">

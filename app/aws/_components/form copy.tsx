@@ -24,7 +24,6 @@ import {
 import { formSchema, type FormSchema } from "../schema";
 import { submitFormAction } from "../actions";
 import { toast } from "sonner";
-import { Separator } from "@/app/_components/ui/separator";
 
 export function UploadForm() {
   const [files, setFiles] = useState<File[] | null>(null);
@@ -64,16 +63,9 @@ export function UploadForm() {
       setIsUploading(true);
 
       const formData = new FormData();
-      const timestamp = Date.now();
-      const originalName = files[0].name;
-      // Replace spaces with hyphens in filename
-      const formattedName = originalName.replace(/\s+/g, '-');
-      const renamedFile = new File([files[0]], `${timestamp}-${formattedName}`, {
-        type: files[0].type
-      });
-      formData.append("file", renamedFile);
+      formData.append("file", files[0]);
       
-      console.log("Submitting file:", renamedFile);
+      console.log("Submitting file:", files[0]);
 
       const result = await submitFormAction({
         url: "",
@@ -178,28 +170,6 @@ export function UploadForm() {
                 'Upload file'
               )}
             </Button>
-             {uploadedUrl && (
-            <>
-              <Separator />
-
-              <p className="break-all text-sm text-muted-foreground">
-                {uploadedUrl}
-              </p>
-
-              {uploadedUrl.match(/\.(jpg|jpeg|png|gif|webp)$/i) && (
-                // Using an img tag instead of next/image since the image is from an external URL
-                // that isn't configured in next.config.js
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={uploadedUrl}
-                  alt="Uploaded image"
-                  width={400}
-                  height={300}
-                  className="rounded-lg object-contain"
-                />
-              )}
-            </>
-          )}
           </form>
         </Form>
       </CardContent>
