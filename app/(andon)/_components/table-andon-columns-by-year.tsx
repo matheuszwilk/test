@@ -6,56 +6,51 @@ import { AndonByYearDataDto } from "@/app/_data-access/andon/get-andon-by-year";
 import { ArrowDownCircle, ArrowUpCircle } from "lucide-react";
 import { Badge } from "@/app/_components/ui/badge";
 
-export const andonTableColumnsByYear: ColumnDef<AndonByYearDataDto, unknown>[] =
-  [
-    {
-      accessorKey: "title",
-      header: "",
-    },
-    {
-      accessorKey: "year_1",
-      header: ({ table }) => (
-        <strong>
-          {table.getRowModel().rows[0]?.original.year_numbers?.[0] || "Year 1"}
-        </strong>
-      ),
-      cell: ({ row }) =>
-        formatCellValue(row.original.title, row.getValue("year_1")),
-    },
-    {
-      accessorKey: "year_2",
-      header: ({ table }) => (
-        <strong>
-          {table.getRowModel().rows[0]?.original.year_numbers?.[1] || "Year 2"}
-        </strong>
-      ),
-      cell: ({ row }) =>
-        formatCellValue(row.original.title, row.getValue("year_2")),
-    },
-  ];
+type CellFormatterFunction = (value: number) => React.ReactNode;
 
-const formatCellValue = (title: string, value: number) => {
-  if (title === "Man Hour" || title === "Andon") {
-    return `${Number(value).toFixed(0)}`;
-  } else if (title === "Andon Stop Qty") {
-    return String(value);
-  } else if (title === "Target" || title === "Instant Stop Rate") {
-    return (
-      <Badge variant="outline">{`${(Number(value) * 100).toFixed(2)}%`}</Badge>
-    );
-  } else if (title === "Achievement Rate") {
+const CELL_FORMATTERS: Record<string, CellFormatterFunction> = {
+  "Man Hour": (value) => `${Number(value).toFixed(0)}`,
+  "Andon": (value) => `${Number(value).toFixed(0)}`,
+  "Andon Stop Qty": (value) => String(value),
+  "Target": (value) => <Badge variant="outline">{`${(Number(value) * 100).toFixed(2)}%`}</Badge>,
+  "Instant Stop Rate": (value) => <Badge variant="outline">{`${(Number(value) * 100).toFixed(2)}%`}</Badge>,
+  "Achievement Rate": (value) => {
     const formattedValue = `${(Number(value) * 100).toFixed(2)}%`;
-    const isPositive = value >= 0;
+    const Icon = value >= 0 ? ArrowDownCircle : ArrowUpCircle;
+    const colorClass = value >= 0 ? "text-green-500" : "text-red-500";
+    
     return (
       <div className="flex items-center justify-center">
         {formattedValue}
-        {isPositive ? (
-          <ArrowDownCircle className="ml-1 text-green-500" size={16} />
-        ) : (
-          <ArrowUpCircle className="ml-1 text-red-500" size={16} />
-        )}
+        <Icon className={`ml-1 ${colorClass}`} size={16} />
       </div>
     );
   }
-  return String(value);
+};
+
+const createYearColumn = (yearIndex: number): ColumnDef<AndonByYearDataDto, unknown> => ({
+  accessorKey: `year_${yearIndex}`,
+  header: ({ table }) => (
+    <strong>
+      {table.getRowModel().rows[0]?.original.year_numbers?.[yearIndex - 1] || `Year ${yearIndex}`}
+    </strong>
+  ),
+  cell: ({ row }) => formatCellValue(
+    row.original.title, 
+    row.getValue(`year_${yearIndex}`)
+  )
+});
+
+export const andonTableColumnsByYear: ColumnDef<AndonByYearDataDto, unknown>[] = [
+  {
+    accessorKey: "title",
+    header: "",
+  },
+  createYearColumn(1),
+  createYearColumn(2)
+];
+
+const formatCellValue = (title: string, value: number): React.ReactNode => {
+  const formatter = CELL_FORMATTERS[title];
+  return formatter ? formatter(value) : String(value);
 };

@@ -1,5 +1,4 @@
 import { DataTable } from "../_components/ui/data-table";
-// import { andonTableColumns } from "./_components/table-andon-columns";
 import { AndonDataDto, getAndonData } from "../_data-access/andon/get-andon";
 import Header, {
   HeaderLeft,
@@ -8,11 +7,6 @@ import Header, {
   HeaderTitle,
 } from "@/app/_components/header";
 import SelectMonthAndLine from "./_components/filter-month-and-line";
-// import {
-//   AndonAllDataDto,
-//   getAllLineAndonData,
-// } from "../_data-access/andon/get-all-andon-by-line";
-// import { andonAllTableColumns } from "./_components/table-all-andon-columns";
 import {
   AndonByMonthDataDto,
   getAndonByMonthData,
@@ -26,56 +20,69 @@ import { andonTableColumnsByYear } from "./_components/table-andon-columns-by-ye
 import ChartMonth from "./_components/chart-month";
 import ChartWeek from "./_components/chart-week";
 import ChartYear from "./_components/chart-year";
-// import { getDefectAccData } from "../_data-access/andon/get-defect-acc-by-time";
-// import { DefectAccDataDto } from "../_data-access/andon/get-defect-acc-by-time";
-// import ChartDefect from "./_components/chart-defect-time";
-// import ChartDefectByQty from "./_components/chart-defect-qty";
-// import { getDefectQtyAccData } from "../_data-access/andon/get-defect-acc-by-qty";
-// import { DefectQtyAccDataDto } from "../_data-access/andon/get-defect-acc-by-qty";
 import { andonTableColumns } from "./_components/table-andon-columns-by-week";
 import { DottedSeparator } from "../_components/dotted-separator";
-// import { AndonReportDataDto } from "../_data-access/andon/get-report-data";
-// import { getAndonReportData } from "../_data-access/andon/get-report-data";
-// import { defectReportColumns } from "./_components/table-defect-report";
 
-// Essa página será montada uma vez e reutilizada (SSG), podendo ser incrementada de forma regenerativa (ISR)
 export const dynamic = "force-dynamic";
 
-const AndonPage = async ({
-  searchParams,
-}: {
-  searchParams: { month?: string; line?: string };
-}) => {
-  const currentDate = new Date();
-  const targetLine = searchParams.line ? searchParams.line : "All";
-  const defaultMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, "0")}`;
-  const targetMonth = searchParams.month || defaultMonth;
-  const andonData: AndonDataDto[] = await getAndonData(targetMonth, targetLine);
-  // const allAndonData: AndonAllDataDto[] = await getAllLineAndonData(targetMonth.split('-')[0], targetLine);
-  const andonByMonthData: AndonByMonthDataDto[] = await getAndonByMonthData(
+interface SearchParams {
+  month?: string;
+  line?: string;
+}
+
+const getCurrentMonth = () => {
+  const date = new Date();
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+};
+
+interface AndonDataResponse {
+  andonData: AndonDataDto[];
+  andonByMonthData: AndonByMonthDataDto[];
+  andonByYearData: AndonByYearDataDto[];
+}
+
+const fetchAndonData = async (month: string, line: string): Promise<AndonDataResponse> => {
+  const [andonData, andonByMonthData, andonByYearData] = await Promise.all([
+    getAndonData(month, line),
+    getAndonByMonthData(month, line),
+    getAndonByYearData(month, line),
+  ]);
+
+  return {
+    andonData,
+    andonByMonthData,
+    andonByYearData,
+  };
+};
+
+interface ChartSectionProps<T> {
+  title?: string;
+  chart: React.ReactNode;
+  data: T[];
+  columns: any[];
+}
+
+const ChartSection = <T,>({
+  title,
+  chart,
+  data,
+  columns,
+}: ChartSectionProps<T>) => (
+  <div className="flex w-full flex-col gap-2">
+    {title && <h3 className="text-lg font-semibold">{title}</h3>}
+    {chart}
+    <DataTable columns={columns} data={data} />
+  </div>
+);
+
+const AndonPage = async ({ searchParams }: { searchParams: SearchParams }) => {
+  const targetLine = searchParams.line || "All";
+  const targetMonth = searchParams.month || getCurrentMonth();
+
+  const { andonData, andonByMonthData, andonByYearData } = await fetchAndonData(
     targetMonth,
-    targetLine,
+    targetLine
   );
-  const andonByYearData: AndonByYearDataDto[] = await getAndonByYearData(
-    targetMonth,
-    targetLine,
-  );
-
-  // const defectAccData: DefectAccDataDto[] = await getDefectAccData(
-  //   targetMonth,
-  //   targetLine,
-  // );
-  // const defectQtyAccData: DefectQtyAccDataDto[] = await getDefectQtyAccData(
-  //   targetMonth,
-  //   targetLine,
-  // );
-
-  // const andonReportData: AndonReportDataDto[] = await getAndonReportData(
-  //   targetMonth,
-  //   targetLine,
-  // );
-
-  console.log(andonData);
 
   return (
     <div className="w-full space-y-8 rounded-lg bg-background p-8">
@@ -95,31 +102,26 @@ const AndonPage = async ({
           </div>
         </HeaderRight>
       </Header>
-      {/* <ChartDefect data={defectAccData} />
-      <ChartDefectByQty data={defectQtyAccData} /> */}
-      {/* <DataTable columns={defectReportColumns} data={andonReportData} /> */}
+
       <DottedSeparator className="my-4" />
+
       <div className="flex w-full flex-row gap-4">
-        <div className="flex w-full flex-col gap-2">
-          <ChartYear data={andonByYearData} />
-          
-          <DataTable columns={andonTableColumnsByYear} data={andonByYearData} />
-        </div>
-        <div className="flex w-full flex-col gap-2">
-          <ChartMonth data={andonByMonthData} />
-          <DataTable
-            columns={andonTableColumnsByMonth}
-            data={andonByMonthData}
-          />
-        </div>
-        <div className="flex w-full flex-col gap-2">
-          <ChartWeek data={andonData} />
-          <DataTable columns={andonTableColumns} data={andonData} />
-        </div>
+        <ChartSection<AndonByYearDataDto>
+          chart={<ChartYear data={andonByYearData} />}
+          data={andonByYearData}
+          columns={andonTableColumnsByYear}
+        />
+        <ChartSection<AndonByMonthDataDto>
+          chart={<ChartMonth data={andonByMonthData} />}
+          data={andonByMonthData}
+          columns={andonTableColumnsByMonth}
+        />
+        <ChartSection<AndonDataDto>
+          chart={<ChartWeek data={andonData} />}
+          data={andonData}
+          columns={andonTableColumns}
+        />
       </div>
-      {/* <div>
-        <DataTable columns={andonAllTableColumns} data={allAndonData} />
-      </div> */}
     </div>
   );
 };
