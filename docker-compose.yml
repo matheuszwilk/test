@@ -6,15 +6,17 @@ services:
     ports:
       - "3001:3000"
     environment:
-      DATABASE_URL: postgres://postgres:bh2ksv5y@10.193.236.56:5432/serverdb
+      DATABASE_URL: postgres://postgres:bh2ksv5y@192.168.0.247:5432/dbserver
       NODE_ENV: "production"
-      MINIO_ENDPOINT: 10.193.236.56
+      MINIO_ENDPOINT: 192.168.0.247
       MINIO_PORT: 9000
       MINIO_USE_SSL: "false"
-      MINIO_ACCESS_KEY: 8cE6emMmFITeEqRkAiO2
-      MINIO_SECRET_KEY: 8dB5QAQU1L3nrfsnncztltsZQvL8bOtmwyG3nwrT
+      MINIO_ACCESS_KEY: yMGetoKLbj26jwWnYW8T
+      MINIO_SECRET_KEY: zi84GPBK0yamN8WWrOQgbe0IaaiSRVwnFrierBNL
       MINIO_BUCKET: aws-f6
-      MINIO_PUBLIC_URL: 10.193.236.56:9001
+      MINIO_PUBLIC_URL: 192.168.0.247:5555
+      RESEND_API_KEY: "re_wevVmDca_A7w5PCzABN2f7ju1zwfyX3yr"
+
     volumes:
       - .:/app # Para desenvolvimento, opcionalmente
     restart: unless-stopped

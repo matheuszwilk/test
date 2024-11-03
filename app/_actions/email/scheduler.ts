@@ -1,5 +1,5 @@
 import cron from 'node-cron';
-import { sendAndonNotifications } from './andon-email-notification';
+import { sendAndonNotifications } from '@/app/_actions/email/andon-email-notification';
 
 let schedulerStarted = false;
 

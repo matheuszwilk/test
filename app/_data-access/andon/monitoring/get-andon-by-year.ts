@@ -16,16 +16,6 @@ interface RawAndonData {
   years: Record<string, number>;
 }
 
-interface YearlyData {
-  year: Date;
-  man_hour: number;
-  andon_time: number;
-  andon_stop_qty: number;
-  instant_stop_rate: number;
-  target: number;
-  achievement_rate: number;
-}
-
 const TARGET_RATE = 0.02;
 
 const generateYearSeries = async (formattedDate: string) => {
@@ -49,19 +39,6 @@ const buildLineFilters = (line?: string) => {
     : Prisma.empty;
 
   return { lineFilter, equipmentLineFilter };
-};
-
-const calculateMetrics = (data: YearlyData) => {
-  const metrics = [
-    { title: 'Man Hour', value: data.man_hour },
-    { title: 'Andon', value: data.andon_time },
-    { title: 'Andon Stop Qty', value: data.andon_stop_qty },
-    { title: 'Target', value: data.target },
-    { title: 'Instant Stop Rate', value: data.instant_stop_rate },
-    { title: 'Achievement Rate', value: data.achievement_rate }
-  ];
-
-  return metrics;
 };
 
 export const getAndonByYearData = async (

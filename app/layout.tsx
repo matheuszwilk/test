@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 // }
 
 // Inicia o scheduler apenas uma vez no servidor e em produção
-if (typeof window === 'undefined' && !global.schedulerInitialized) {
+if (typeof window === 'undefined' && process.env.NODE_ENV === 'production' && !global.schedulerInitialized) {
   global.schedulerInitialized = true;
   startScheduler();
 }

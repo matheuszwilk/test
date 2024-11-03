@@ -1,27 +1,27 @@
-import { DataTable } from "../_components/ui/data-table";
-import { AndonByWeekDataDto, getAndonData } from "../_data-access/andon/monitoring/get-andon-by-week";
+import { DataTable } from "@/app/_components/ui/data-table";
+import { AndonByWeekDataDto, getAndonData } from "@/app/_data-access/andon/monitoring/get-andon-by-week";
 import Header, {
   HeaderLeft,
   HeaderRight,
   HeaderSubtitle,
   HeaderTitle,
 } from "@/app/_components/header";
-import SelectMonthAndLine from "./_components/filter-month-and-line";
+import SelectMonthAndLine from "@/app/(andon)/_components/filter-month-and-line";
 import {
   AndonByMonthDataDto,
   getAndonByMonthData,
-} from "../_data-access/andon/monitoring/get-andon-by-month";
-import { andonTableColumnsByMonth } from "./_components/table-andon-columns-by-month";
+} from "@/app/_data-access/andon/monitoring/get-andon-by-month";
+import { andonTableColumnsByMonth } from "@/app/(andon)/_components/table-andon-columns-by-month";
 import {
   AndonByYearDataDto,
   getAndonByYearData,
-} from "../_data-access/andon/monitoring/get-andon-by-year";
-import { andonTableColumnsByYear } from "./_components/table-andon-columns-by-year";
-import ChartMonth from "./_components/chart-month";
-import ChartWeek from "./_components/chart-week";
-import ChartYear from "./_components/chart-year";
-import { andonTableColumns } from "./_components/table-andon-columns-by-week";
-import { DottedSeparator } from "../_components/dotted-separator";
+} from "@/app/_data-access/andon/monitoring/get-andon-by-year";
+import { andonTableColumnsByYear } from "@/app/(andon)/_components/table-andon-columns-by-year";
+import ChartMonth from "@/app/(andon)/_components/chart-month";
+import ChartWeek from "@/app/(andon)/_components/chart-week";
+import ChartYear from "@/app/(andon)/_components/chart-year";
+import { andonTableColumns } from "@/app/(andon)/_components/table-andon-columns-by-week";
+import { DottedSeparator } from "@/app/_components/dotted-separator";
 
 export const dynamic = "force-dynamic";
 
@@ -59,6 +59,7 @@ interface ChartSectionProps<T> {
   title?: string;
   chart: React.ReactNode;
   data: T[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   columns: any[];
 }
 

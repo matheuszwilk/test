@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { AndonReportDataDto } from "@/app/_data-access/andon/report/get-report-data";
-import UpsertReportDialogContent from "./upsert-dialog-content-report";
+import UpsertReportDialogContent from "@/app/report/_components/upsert-dialog-content-report";
 
 interface DefectReportTableDropdownMenuProps {
   defectReport: AndonReportDataDto;

@@ -33,8 +33,8 @@ import {
   FileUploaderContent,
   FileUploaderItem
 } from "@/app/_components/ui/file-upload";
-import { submitFormAction } from "@/app/aws/actions";
-import { formSchema, formStateSchema } from "@/app/aws/schema";
+import { submitFormAction } from "@/app/_actions/upload/actions";
+import { formSchema, formStateSchema } from "@/app/_actions/upload/schema";
 import { Separator } from "@/app/_components/ui/separator";
 
 const MAX_FILE_SIZE = 300 * 1024 * 1024; // 300MB

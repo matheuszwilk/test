@@ -5,7 +5,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/app/_components/ui/badge";
 import { AndonReportDataDto } from "@/app/_data-access/andon/report/get-report-data";
 import { FileTextIcon } from "lucide-react";
-import DefectReportTableDropdownMenu from "./table-dropdown-menu-report";
+import DefectReportTableDropdownMenu from "@/app/report/_components/table-dropdown-menu-report";
 
 export const defectReportColumns: ColumnDef<AndonReportDataDto>[] = [
   {

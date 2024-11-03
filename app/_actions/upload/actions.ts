@@ -1,6 +1,6 @@
 "use server";
 
-import { storageProvider } from "@/services/storage";
+import { storageProvider } from "@/app/_services/storage";
 import { formSchema, formStateSchema, type FormState } from "./schema";
 import { ZodError } from "zod";
 

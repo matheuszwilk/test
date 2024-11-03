@@ -1,5 +1,5 @@
 import { Client } from "minio";
-import { StorageProvider } from "../interface";
+import { StorageProvider } from "@/app/_services/storage/interface";
 
 interface MinioConfig {
   endPoint: string;

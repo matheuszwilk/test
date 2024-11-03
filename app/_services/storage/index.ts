@@ -1,5 +1,5 @@
-import { StorageProvider } from "./interface";
-import { MinioStorageService } from "./implementations/minio";
+import { StorageProvider } from "@/app/_services/storage/interface";
+import { MinioStorageService } from "@/app/_services/storage/implementations/minio";
 
 export const storageProvider: StorageProvider = new MinioStorageService({
   endPoint: process.env.MINIO_ENDPOINT || "localhost",

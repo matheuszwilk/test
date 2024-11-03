@@ -8,7 +8,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../../_components/ui/select";
+} from "@/app/_components/ui/select";
 
 interface SelectMonthProps {
   initialMonth: string;

@@ -10,32 +10,96 @@ import {
   ComposedChart,
   ResponsiveContainer,
   Tooltip,
+  TooltipProps,
 } from "recharts";
 import { useTheme } from "next-themes";
-import { DefectAccDataDto } from "../../_data-access/andon/report/get-defect-acc-by-time";
+import { DefectAccDataDto } from "@/app/_data-access/andon/report/get-defect-acc-by-time";
 
 interface ChartDefectProps {
   data: DefectAccDataDto[];
 }
 
-const ChartDefect = ({ data }: ChartDefectProps) => {
+interface FormattedChartData {
+  month: string;
+  equipment_line: string;
+  andon_process: string;
+  total_andon_time: number;
+  andon_porcent: number;
+  andon_procent_acc: number;
+}
+
+const ChartDefectByTime: React.FC<ChartDefectProps> = ({ data }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
-  // Convert BigInt and Decimal values to numbers before passing to chart
-  const formattedData = data.map((item) => ({
-    month: item.month,
-    equipment_line: item.equipment_line,
-    andon_process: item.andon_process,
-    total_andon_time: Number(item.total_andon_time), // Convert BigInt to number
-    andon_porcent: parseFloat(item.andon_porcent.toString()),
-    andon_procent_acc: parseFloat(item.andon_procent_acc.toString()),
-  }));
+  const formatData = (rawData: DefectAccDataDto[]): FormattedChartData[] => {
+    return rawData.map((item) => ({
+      month: item.month,
+      equipment_line: item.equipment_line,
+      andon_process: item.andon_process,
+      total_andon_time: Number(item.total_andon_time),
+      andon_porcent: parseFloat(item.andon_porcent.toString()),
+      andon_procent_acc: parseFloat(item.andon_procent_acc.toString()),
+    }));
+  };
 
-  const textColor = isDark
-    ? "hsl(var(--muted-foreground))"
-    : "hsl(var(--foreground))";
-  const gridColor = isDark ? "hsl(var(--border))" : "hsl(var(--border))";
+  const getThemeColors = () => ({
+    text: isDark ? "hsl(var(--muted-foreground))" : "hsl(var(--foreground))",
+    grid: isDark ? "hsl(var(--border))" : "hsl(var(--border))",
+    background: isDark ? "hsl(var(--background))" : "white",
+    stroke: isDark ? "rgb(255, 255, 255)" : "rgb(0, 0, 0)",
+  });
+
+  const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
+    if (!active || !payload || !payload.length) return null;
+
+    const colors = getThemeColors();
+
+    return (
+      <div
+        style={{
+          backgroundColor: colors.background,
+          border: "1px solid hsl(var(--border))",
+          borderRadius: "8px",
+          padding: "8px 12px",
+          boxShadow: "0 4px 12px rgba(255, 0, 81, 0.15)",
+          backdropFilter: "blur(8px)",
+          WebkitBackdropFilter: "blur(8px)",
+        }}
+      >
+        <p
+          style={{
+            color: colors.text,
+            fontWeight: 300,
+            fontSize: "12px",
+            marginBottom: "4px",
+            textTransform: "uppercase",
+            letterSpacing: "0.5px",
+          }}
+        >
+          {label}
+        </p>
+        {payload.map((entry) => (
+          <p
+            key={entry.name}
+            style={{
+              color: colors.text,
+              fontWeight: 300,
+              fontSize: "12px",
+            }}
+          >
+            {entry.name === "total_andon_time" ? "Tempo Total" : "Acumulado %"}:{" "}
+            {entry.name === "andon_procent_acc"
+              ? `${entry.value?.toFixed(2)}%`
+              : entry.value?.toLocaleString()}
+          </p>
+        ))}
+      </div>
+    );
+  };
+
+  const colors = getThemeColors();
+  const formattedData = formatData(data);
 
   return (
     <div className="h-[250px] w-full">
@@ -46,7 +110,7 @@ const ChartDefect = ({ data }: ChartDefectProps) => {
         >
           <CartesianGrid
             strokeDasharray="3 3"
-            stroke={gridColor}
+            stroke={colors.grid}
             vertical={false}
           />
           <XAxis
@@ -54,64 +118,25 @@ const ChartDefect = ({ data }: ChartDefectProps) => {
             tickLine={false}
             axisLine={false}
             tickMargin={8}
-            tick={{ fill: textColor, fontSize: 12 }}
+            tick={{ fill: colors.text, fontSize: 12 }}
           />
           <YAxis
             yAxisId="left"
-            stroke={textColor}
-            tick={{ fill: textColor, fontSize: 12 }}
+            stroke={colors.text}
+            tick={{ fill: colors.text, fontSize: 12 }}
             tickLine={false}
             axisLine={false}
           />
           <YAxis
             yAxisId="right"
             orientation="right"
-            stroke={textColor}
-            tick={{ fill: textColor, fontSize: 12 }}
+            stroke={colors.text}
+            tick={{ fill: colors.text, fontSize: 12 }}
             tickLine={false}
             axisLine={false}
             domain={[0, 100]}
           />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: isDark ? "hsl(var(--background))" : "white",
-              border: "1px solid hsl(var(--border))",
-              borderRadius: "8px",
-              padding: "8px 12px",
-              boxShadow: "0 4px 12px rgba(255, 0, 81, 0.15)",
-              backdropFilter: "blur(8px)",
-              WebkitBackdropFilter: "blur(8px)",
-              transition: "all 0.2s ease",
-            }}
-            labelStyle={{
-              color: isDark ? "rgb(255, 255, 255)" : "rgb(0, 0, 0)",
-              fontWeight: 300,
-              fontSize: "12px",
-              marginBottom: "4px",
-              textTransform: "uppercase",
-              letterSpacing: "0.5px",
-            }}
-            formatter={(value: number, name: string) => {
-              const formattedValue =
-                name === "andon_procent_acc"
-                  ? `${value.toFixed(2)}%`
-                  : value.toLocaleString();
-
-              return [
-                <span
-                  style={{
-                    color: isDark ? "rgb(255, 255, 255)" : "rgb(0, 0, 0)",
-                    fontWeight: 300,
-                    fontSize: "12px",
-                  }}
-                  key={name}
-                >
-                  {formattedValue}
-                </span>,
-                name === "total_andon_time" ? "Tempo Total" : "Acumulado %",
-              ];
-            }}
-          />
+          <Tooltip content={<CustomTooltip />} />
           <Bar
             yAxisId="left"
             dataKey="total_andon_time"
@@ -124,18 +149,14 @@ const ChartDefect = ({ data }: ChartDefectProps) => {
             yAxisId="right"
             type="natural"
             dataKey="andon_procent_acc"
-            stroke={isDark ? "rgb(255, 255, 255)" : "rgb(0, 0, 0)"}
+            stroke={colors.stroke}
             strokeWidth={2}
-            dot={{
-              fill: "rgb(255, 255, 255)",
-            }}
-            activeDot={{
-              r: 6,
-            }}
+            dot={{ fill: "rgb(255, 255, 255)" }}
+            activeDot={{ r: 6 }}
             name="andon_procent_acc"
             label={{
               position: "top",
-              fill: isDark ? "rgb(255, 255, 255)" : "rgb(0, 0, 0)",
+              fill: colors.stroke,
               fontSize: 12,
               formatter: (value: number) => `${value.toFixed(2)}%`,
             }}
@@ -146,4 +167,4 @@ const ChartDefect = ({ data }: ChartDefectProps) => {
   );
 };
 
-export default ChartDefect;
+export default ChartDefectByTime;
